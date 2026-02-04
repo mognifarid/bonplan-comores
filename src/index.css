@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    /* Comoros-inspired palette - Ocean turquoise, tropical green, warm sand */
+    --background: 180 20% 98%;
+    --foreground: 200 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 30% 15%;
+
+    /* Primary - Ocean turquoise */
+    --primary: 180 65% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Warm sand */
+    --secondary: 35 40% 94%;
+    --secondary-foreground: 35 50% 25%;
+
+    /* Muted - Light ocean */
+    --muted: 180 20% 94%;
+    --muted-foreground: 200 15% 45%;
+
+    /* Accent - Tropical orange (for premium features) */
+    --accent: 28 90% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Success - Tropical green */
+    --success: 150 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    /* Urgent - Warm red */
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 180 15% 88%;
+    --input: 180 15% 88%;
+    --ring: 180 65% 40%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(180, 65%, 40%) 0%, hsl(160, 55%, 45%) 50%, hsl(150, 60%, 40%) 100%);
+    --gradient-premium: linear-gradient(135deg, hsl(28, 90%, 55%) 0%, hsl(35, 85%, 50%) 100%);
+    --gradient-urgent: linear-gradient(135deg, hsl(0, 75%, 55%) 0%, hsl(15, 80%, 50%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(200 30% 15% / 0.05);
+    --shadow-md: 0 4px 12px -2px hsl(200 30% 15% / 0.08), 0 2px 4px -2px hsl(200 30% 15% / 0.04);
+    --shadow-lg: 0 12px 32px -4px hsl(200 30% 15% / 0.12), 0 4px 8px -2px hsl(200 30% 15% / 0.06);
+    --shadow-card: 0 2px 8px -2px hsl(200 30% 15% / 0.06), 0 1px 2px -1px hsl(200 30% 15% / 0.04);
+    --shadow-card-hover: 0 8px 24px -4px hsl(200 30% 15% / 0.12), 0 4px 8px -2px hsl(200 30% 15% / 0.06);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 200 30% 8%;
+    --foreground: 180 20% 95%;
+
+    --card: 200 25% 12%;
+    --card-foreground: 180 20% 95%;
+
+    --popover: 200 25% 12%;
+    --popover-foreground: 180 20% 95%;
+
+    --primary: 180 65% 50%;
+    --primary-foreground: 200 30% 8%;
+
+    --secondary: 200 20% 18%;
+    --secondary-foreground: 180 20% 90%;
+
+    --muted: 200 20% 18%;
+    --muted-foreground: 200 15% 60%;
+
+    --accent: 28 90% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 150 60% 50%;
+    --success-foreground: 200 30% 8%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 20% 20%;
+    --input: 200 20% 20%;
+    --ring: 180 65% 50%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-gradient-hero {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-premium {
+    background: var(--gradient-premium);
+  }
+
+  .bg-gradient-urgent {
+    background: var(--gradient-urgent);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
