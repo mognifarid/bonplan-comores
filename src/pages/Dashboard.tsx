@@ -7,10 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ListingCard } from '@/components/ListingCard';
+import { BoostDialog } from '@/components/BoostDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserAds, useSavedAds, useDeleteAd } from '@/hooks/useAds';
+import { useVerifyPayment } from '@/hooks/useBoost';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2, Edit, Eye, Clock, CheckCircle, XCircle, Star, Zap, ArrowUp, Heart } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit, Eye, Clock, CheckCircle, XCircle, Star, Zap, ArrowUp, Heart, Rocket } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Link } from 'react-router-dom';
 
@@ -22,18 +24,23 @@ export default function Dashboard() {
   const { data: userAds = [], isLoading: adsLoading } = useUserAds();
   const { data: savedAds = [], isLoading: savedLoading } = useSavedAds();
   const deleteAd = useDeleteAd();
+  const verifyPayment = useVerifyPayment();
 
   const [activeTab, setActiveTab] = useState('mes-annonces');
+  const [boostDialogOpen, setBoostDialogOpen] = useState(false);
+  const [selectedAdForBoost, setSelectedAdForBoost] = useState<string | null>(null);
 
   useEffect(() => {
-    if (searchParams.get('success') === 'true') {
+    const success = searchParams.get('success');
+    const sessionId = searchParams.get('session_id');
+    
+    if (success === 'true' && sessionId) {
+      verifyPayment.mutate(sessionId);
       setActiveTab('boosts');
-      toast({
-        title: "Paiement réussi !",
-        description: "Votre boost a été activé avec succès.",
-      });
+      // Clean URL
+      window.history.replaceState({}, '', '/mes-annonces');
     }
-  }, [searchParams, toast]);
+  }, [searchParams]);
 
   if (authLoading) {
     return (
@@ -48,9 +55,8 @@ export default function Dashboard() {
     return null;
   }
 
-  const pendingAds = userAds.filter(ad => ad.status === 'pending');
   const approvedAds = userAds.filter(ad => ad.status === 'approved');
-  const rejectedAds = userAds.filter(ad => ad.status === 'rejected');
+  const boostedAds = userAds.filter(ad => ad.boost);
 
   const handleDelete = async (id: string) => {
     try {
@@ -59,6 +65,11 @@ export default function Dashboard() {
     } catch {
       toast({ title: "Erreur", description: "Impossible de supprimer l'annonce.", variant: "destructive" });
     }
+  };
+
+  const handleBoostClick = (adId: string) => {
+    setSelectedAdForBoost(adId);
+    setBoostDialogOpen(true);
   };
 
   const getStatusIcon = (status: string) => {
@@ -76,6 +87,15 @@ export default function Dashboard() {
       case 'approved': return 'Approuvée';
       case 'rejected': return 'Refusée';
       default: return status;
+    }
+  };
+
+  const getBoostIcon = (boost: string | null) => {
+    switch (boost) {
+      case 'vedette': return <Star className="h-3 w-3 text-amber-500" />;
+      case 'urgent': return <Zap className="h-3 w-3 text-red-500" />;
+      case 'remontee': return <ArrowUp className="h-3 w-3 text-blue-500" />;
+      default: return null;
     }
   };
 
@@ -108,6 +128,7 @@ export default function Dashboard() {
             <TabsTrigger value="boosts" className="gap-2">
               <Star className="h-4 w-4" />
               Boosts
+              <Badge variant="secondary">{boostedAds.length}</Badge>
             </TabsTrigger>
           </TabsList>
 
@@ -146,14 +167,12 @@ export default function Dashboard() {
                             <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{ad.views}</span>
                             {ad.boost && (
                               <Badge variant="outline" className="gap-1">
-                                {ad.boost === 'vedette' && <Star className="h-3 w-3" />}
-                                {ad.boost === 'urgent' && <Zap className="h-3 w-3" />}
-                                {ad.boost === 'remontee' && <ArrowUp className="h-3 w-3" />}
+                                {getBoostIcon(ad.boost)}
                                 {ad.boost}
                               </Badge>
                             )}
                           </div>
-                          <div className="flex gap-2 mt-3">
+                          <div className="flex flex-wrap gap-2 mt-3">
                             <Link to={`/annonce/${ad.id}`}>
                               <Button variant="outline" size="sm" className="gap-1">
                                 <Eye className="h-3 w-3" />
@@ -166,6 +185,17 @@ export default function Dashboard() {
                                 Modifier
                               </Button>
                             </Link>
+                            {ad.status === 'approved' && !ad.boost && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="gap-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                                onClick={() => handleBoostClick(ad.id)}
+                              >
+                                <Rocket className="h-3 w-3" />
+                                Booster
+                              </Button>
+                            )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" size="sm" className="gap-1">
@@ -228,44 +258,120 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="boosts">
-            <Card>
-              <CardHeader>
-                <CardTitle>Booster vos annonces</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="border-2 border-amber-300">
-                    <CardContent className="p-4 text-center">
-                      <Star className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                      <h3 className="font-bold">Vedette</h3>
-                      <p className="text-2xl font-bold text-primary">6€</p>
-                      <p className="text-sm text-muted-foreground">Mise en avant premium</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2 border-red-300">
-                    <CardContent className="p-4 text-center">
-                      <Zap className="h-8 w-8 text-red-500 mx-auto mb-2" />
-                      <h3 className="font-bold">Urgent</h3>
-                      <p className="text-2xl font-bold text-primary">3€</p>
-                      <p className="text-sm text-muted-foreground">Vente rapide</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2 border-blue-300">
-                    <CardContent className="p-4 text-center">
-                      <ArrowUp className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                      <h3 className="font-bold">Remontée</h3>
-                      <p className="text-2xl font-bold text-primary">1,50€</p>
-                      <p className="text-sm text-muted-foreground">Remonter en haut</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              {/* Boost options */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Booster vos annonces</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="border-2 border-amber-300 bg-amber-50/50">
+                      <CardContent className="p-4 text-center">
+                        <Star className="h-8 w-8 text-amber-500 mx-auto mb-2" />
+                        <h3 className="font-bold">Vedette</h3>
+                        <p className="text-2xl font-bold text-primary">6€</p>
+                        <p className="text-sm text-muted-foreground">Mise en avant premium</p>
+                        <p className="text-xs text-muted-foreground mt-1">Durée: 7 jours</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-2 border-red-300 bg-red-50/50">
+                      <CardContent className="p-4 text-center">
+                        <Zap className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                        <h3 className="font-bold">Urgent</h3>
+                        <p className="text-2xl font-bold text-primary">3€</p>
+                        <p className="text-sm text-muted-foreground">Vente rapide</p>
+                        <p className="text-xs text-muted-foreground mt-1">Durée: 7 jours</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-2 border-blue-300 bg-blue-50/50">
+                      <CardContent className="p-4 text-center">
+                        <ArrowUp className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                        <h3 className="font-bold">Remontée</h3>
+                        <p className="text-2xl font-bold text-primary">1,50€</p>
+                        <p className="text-sm text-muted-foreground">Remonter en haut</p>
+                        <p className="text-xs text-muted-foreground mt-1">Durée: 7 jours</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Eligible ads for boost */}
+              {approvedAds.filter(ad => !ad.boost).length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Annonces éligibles au boost</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {approvedAds.filter(ad => !ad.boost).map((ad) => (
+                        <div key={ad.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <img src={ad.images[0]} alt={ad.title} className="w-12 h-12 rounded object-cover" />
+                            <div>
+                              <p className="font-medium">{ad.title}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {new Intl.NumberFormat('fr-FR').format(ad.price)} KMF
+                              </p>
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleBoostClick(ad.id)}
+                            className="gap-1"
+                          >
+                            <Rocket className="h-4 w-4" />
+                            Booster
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Currently boosted ads */}
+              {boostedAds.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Annonces boostées</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {boostedAds.map((ad) => (
+                        <div key={ad.id} className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
+                          <div className="flex items-center gap-3">
+                            <img src={ad.images[0]} alt={ad.title} className="w-12 h-12 rounded object-cover" />
+                            <div>
+                              <p className="font-medium">{ad.title}</p>
+                              <Badge variant="outline" className="gap-1 mt-1">
+                                {getBoostIcon(ad.boost)}
+                                {ad.boost}
+                              </Badge>
+                            </div>
+                          </div>
+                          <Link to={`/annonce/${ad.id}`}>
+                            <Button variant="outline" size="sm">Voir</Button>
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </main>
 
       <Footer />
+
+      <BoostDialog 
+        open={boostDialogOpen} 
+        onOpenChange={setBoostDialogOpen}
+        adId={selectedAdForBoost}
+      />
     </div>
   );
 }

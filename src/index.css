@@ -36,6 +36,10 @@
     --success: 150 60% 40%;
     --success-foreground: 0 0% 100%;
 
+    /* Warning - Amber */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
     /* Urgent - Warm red */
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
