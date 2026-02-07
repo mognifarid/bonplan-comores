@@ -9,6 +9,7 @@ export function Hero() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: stats } = useStats();
+  
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -22,9 +23,9 @@ export function Hero() {
     <section className="relative overflow-hidden bg-gradient-hero py-16 md:py-24">
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-48 h-48 bg-white rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white rounded-full blur-3xl" />
+        <div className="absolute top-10 left-10 w-32 h-32 bg-primary-foreground rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-48 h-48 bg-primary-foreground rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary-foreground rounded-full blur-3xl" />
       </div>
 
       <div className="container relative">
@@ -61,16 +62,16 @@ export function Hero() {
             </div>
           </form>
 
-          {/* Stats */}
+          {/* Real-time Stats */}
           <div className="flex justify-center gap-8 md:gap-12 pt-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <div className="text-center">
-              <p className="text-2xl md:text-3xl font-bold text-primary-foreground">
+              <p className="text-2xl md:text-3xl font-bold text-primary-foreground transition-all duration-300">
                 {stats?.activeAds ?? 0}
               </p>
               <p className="text-sm text-primary-foreground/70">Annonces actives</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl md:text-3xl font-bold text-primary-foreground">
+              <p className="text-2xl md:text-3xl font-bold text-primary-foreground transition-all duration-300">
                 {stats?.totalUsers ?? 0}
               </p>
               <p className="text-sm text-primary-foreground/70">Utilisateurs</p>

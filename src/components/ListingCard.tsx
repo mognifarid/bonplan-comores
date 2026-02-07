@@ -7,9 +7,10 @@ import { fr } from 'date-fns/locale';
 
 interface ListingCardProps {
   listing: Listing;
+  featured?: boolean;
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, featured = false }: ListingCardProps) {
   const islandLabel = ISLANDS.find(i => i.value === listing.island)?.label || listing.island;
   
   const formatPrice = (price: number) => {
@@ -33,7 +34,7 @@ export function ListingCard({ listing }: ListingCardProps) {
   return (
     <Link
       to={`/annonce/${listing.id}`}
-      className="group block rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-card-hover transition-all duration-300"
+      className={`group block rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-card-hover transition-all duration-300 ${featured ? 'ring-2 ring-amber-300' : ''}`}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
