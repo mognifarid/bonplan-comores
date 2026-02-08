@@ -104,6 +104,28 @@ export function useUserAds() {
   });
 }
 
+export function useUserAd(id: string) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['userAd', id, user?.id],
+    queryFn: async () => {
+      if (!user || !id) return null;
+
+      const { data, error } = await supabase
+        .from('ads')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user && !!id,
+  });
+}
+
 export function useCreateAd() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
