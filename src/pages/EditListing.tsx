@@ -7,13 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { CATEGORIES, SUBCATEGORIES, ISLANDS, VEHICLE_BRANDS, VEHICLE_YEARS, MILEAGE_RANGES, ROOM_COUNTS } from '@/types/listing';
 import { useUserAd, useUpdateAd } from '@/hooks/useAds';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useBoostAd, BoostType, BOOST_PRICES } from '@/hooks/useBoost';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, X, ImagePlus, ArrowLeft } from 'lucide-react';
+import { Loader2, X, ImagePlus, ArrowLeft, Star, Zap, ArrowUp, Check, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function EditListing() {
@@ -23,6 +25,9 @@ export default function EditListing() {
   const { toast } = useToast();
   const { data: ad, isLoading: adLoading } = useUserAd(id || '');
   const updateAd = useUpdateAd();
+  const boostAd = useBoostAd();
+
+  const [selectedBoost, setSelectedBoost] = useState<BoostType | null>(null);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -409,6 +414,111 @@ export default function EditListing() {
                   </label>
                 </div>
               </div>
+
+              {/* Boost Options - Only show if ad is approved and not already boosted */}
+              {ad?.status === 'approved' && !ad?.boost && (
+                <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Rocket className="h-5 w-5 text-primary" />
+                      Booster cette annonce
+                    </CardTitle>
+                    <CardDescription>
+                      Optionnel : augmentez la visibilité de votre annonce
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { type: 'vedette' as BoostType, icon: Star, borderClass: 'border-amber-400', bgClass: 'bg-amber-50', iconClass: 'text-amber-500', selectedBg: 'bg-amber-100' },
+                      { type: 'urgent' as BoostType, icon: Zap, borderClass: 'border-red-400', bgClass: 'bg-red-50', iconClass: 'text-red-500', selectedBg: 'bg-red-100' },
+                      { type: 'remontee' as BoostType, icon: ArrowUp, borderClass: 'border-blue-400', bgClass: 'bg-blue-50', iconClass: 'text-blue-500', selectedBg: 'bg-blue-100' },
+                    ].map((option) => {
+                      const Icon = option.icon;
+                      const info = BOOST_PRICES[option.type];
+                      const isSelected = selectedBoost === option.type;
+                      
+                      return (
+                        <div
+                          key={option.type}
+                          onClick={() => setSelectedBoost(isSelected ? null : option.type)}
+                          className={`
+                            relative flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all
+                            ${isSelected 
+                              ? `${option.borderClass} ${option.selectedBg} ring-2 ring-offset-2`
+                              : `border-border hover:${option.borderClass} ${option.bgClass}`
+                            }
+                          `}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-full ${option.bgClass}`}>
+                              <Icon className={`h-5 w-5 ${option.iconClass}`} />
+                            </div>
+                            <div>
+                              <p className="font-semibold">{info.label}</p>
+                              <p className="text-sm text-muted-foreground">{info.description}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-primary">{info.price}€</p>
+                              <p className="text-xs text-muted-foreground">7 jours</p>
+                            </div>
+                            {isSelected && (
+                              <div className="absolute top-2 right-2">
+                                <Check className={`h-5 w-5 ${option.iconClass}`} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    
+                    {selectedBoost && (
+                      <Button
+                        type="button"
+                        className="w-full mt-2"
+                        variant="premium"
+                        onClick={async () => {
+                          if (id && selectedBoost) {
+                            await boostAd.mutateAsync({ adId: id, boostType: selectedBoost });
+                          }
+                        }}
+                        disabled={boostAd.isPending}
+                      >
+                        {boostAd.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Redirection...
+                          </>
+                        ) : (
+                          <>
+                            <Rocket className="h-4 w-4 mr-2" />
+                            Payer le boost ({BOOST_PRICES[selectedBoost].price}€)
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Show current boost status */}
+              {ad?.boost && (
+                <Card className="border-2 border-primary/30 bg-primary/5">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      {ad.boost === 'vedette' && <Star className="h-6 w-6 text-amber-500" />}
+                      {ad.boost === 'urgent' && <Zap className="h-6 w-6 text-red-500" />}
+                      {ad.boost === 'remontee' && <ArrowUp className="h-6 w-6 text-blue-500" />}
+                      <div>
+                        <p className="font-semibold">Boost actif : {BOOST_PRICES[ad.boost as BoostType]?.label}</p>
+                        <p className="text-sm text-muted-foreground">Votre annonce est déjà boostée</p>
+                      </div>
+                      <Badge variant="secondary" className="ml-auto">Actif</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               <div className="flex gap-4">
                 <Button 
