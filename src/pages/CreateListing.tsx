@@ -7,13 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CATEGORIES, SUBCATEGORIES, ISLANDS, VEHICLE_BRANDS, VEHICLE_YEARS, MILEAGE_RANGES, ROOM_COUNTS } from '@/types/listing';
 import { useCreateAd } from '@/hooks/useAds';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Upload, X, ImagePlus } from 'lucide-react';
+import { Loader2, X, ImagePlus, Star, Zap, ArrowUp, Check } from 'lucide-react';
+import { BoostType, BOOST_PRICES } from '@/hooks/useBoost';
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ export default function CreateListing() {
   const [phone, setPhone] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [selectedBoost, setSelectedBoost] = useState<BoostType | null>(null);
 
   // Vehicle specific
   const [vehicleBrand, setVehicleBrand] = useState('');
@@ -39,6 +41,33 @@ export default function CreateListing() {
 
   // Real estate specific
   const [roomCount, setRoomCount] = useState('');
+
+  const boostOptions = [
+    {
+      type: 'vedette' as BoostType,
+      icon: Star,
+      borderClass: 'border-amber-400',
+      bgClass: 'bg-amber-50',
+      iconClass: 'text-amber-500',
+      selectedBg: 'bg-amber-100',
+    },
+    {
+      type: 'urgent' as BoostType,
+      icon: Zap,
+      borderClass: 'border-red-400',
+      bgClass: 'bg-red-50',
+      iconClass: 'text-red-500',
+      selectedBg: 'bg-red-100',
+    },
+    {
+      type: 'remontee' as BoostType,
+      icon: ArrowUp,
+      borderClass: 'border-blue-400',
+      bgClass: 'bg-blue-50',
+      iconClass: 'text-blue-500',
+      selectedBg: 'bg-blue-100',
+    },
+  ];
 
   const selectedIslandData = ISLANDS.find(i => i.value === island);
   const subcategories = category ? SUBCATEGORIES[category] || [] : [];
@@ -107,7 +136,7 @@ export default function CreateListing() {
     }
 
     try {
-      await createAd.mutateAsync({
+      const newAd = await createAd.mutateAsync({
         title: title.trim(),
         description: description.trim(),
         price: parseInt(price) || 0,
@@ -122,6 +151,32 @@ export default function CreateListing() {
         vehicle_mileage: vehicleMileage || undefined,
         room_count: roomCount || undefined,
       });
+
+      // Si un boost est sélectionné, rediriger vers le paiement
+      if (selectedBoost && newAd?.id) {
+        const { data, error } = await supabase.functions.invoke('create-boost-payment', {
+          body: { adId: newAd.id, boostType: selectedBoost },
+        });
+
+        if (error || data?.error) {
+          toast({
+            title: "Annonce créée !",
+            description: "Votre annonce est en attente de validation. Le boost sera disponible après validation.",
+          });
+          navigate('/mes-annonces');
+          return;
+        }
+
+        if (data?.url) {
+          toast({
+            title: "Annonce créée !",
+            description: "Redirection vers le paiement du boost...",
+          });
+          window.open(data.url, '_blank');
+          navigate('/mes-annonces');
+          return;
+        }
+      }
 
       toast({
         title: "Annonce créée !",
@@ -369,12 +424,75 @@ export default function CreateListing() {
                 </div>
               </div>
 
+              {/* Boost Options */}
+              <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Star className="h-5 w-5 text-amber-500" />
+                    Boostez votre annonce
+                  </CardTitle>
+                  <CardDescription>
+                    Optionnel : augmentez la visibilité de votre annonce dès sa publication
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {boostOptions.map((option) => {
+                    const Icon = option.icon;
+                    const info = BOOST_PRICES[option.type];
+                    const isSelected = selectedBoost === option.type;
+                    
+                    return (
+                      <div
+                        key={option.type}
+                        onClick={() => setSelectedBoost(isSelected ? null : option.type)}
+                        className={`
+                          relative flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all
+                          ${isSelected 
+                            ? `${option.borderClass} ${option.selectedBg} ring-2 ring-offset-2 ring-${option.type === 'vedette' ? 'amber' : option.type === 'urgent' ? 'red' : 'blue'}-400`
+                            : `border-border hover:${option.borderClass} ${option.bgClass}`
+                          }
+                        `}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-full ${option.bgClass}`}>
+                            <Icon className={`h-5 w-5 ${option.iconClass}`} />
+                          </div>
+                          <div>
+                            <p className="font-semibold">{info.label}</p>
+                            <p className="text-sm text-muted-foreground">{info.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-primary">{info.price}€</p>
+                            <p className="text-xs text-muted-foreground">7 jours</p>
+                          </div>
+                          {isSelected && (
+                            <div className="absolute top-2 right-2">
+                              <Check className={`h-5 w-5 ${option.iconClass}`} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {selectedBoost && (
+                    <p className="text-sm text-center text-muted-foreground pt-2">
+                      💳 Vous serez redirigé vers le paiement après la création de l'annonce
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
               <Button type="submit" className="w-full" size="lg" disabled={createAd.isPending || !category || !island}>
                 {createAd.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     Création...
                   </>
+                ) : selectedBoost ? (
+                  `Déposer et payer le boost (${BOOST_PRICES[selectedBoost].price}€)`
                 ) : (
                   'Déposer mon annonce'
                 )}
