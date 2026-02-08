@@ -18,20 +18,33 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
+  // Use anon key for auth verification
+  const supabaseAuth = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
   );
 
+  // Use service role to bypass RLS for ad verification
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
+  );
+
   try {
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
-    const user = data.user;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Autorisation requise");
+    }
     
-    if (!user?.email) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data, error: authError } = await supabaseAuth.auth.getUser(token);
+    
+    if (authError || !data.user) {
       throw new Error("Utilisateur non authentifié");
     }
+    
+    const user = data.user;
 
     const { adId, boostType } = await req.json();
     
@@ -43,16 +56,21 @@ serve(async (req) => {
       throw new Error("Type de boost invalide");
     }
 
-    // Verify the ad belongs to the user
-    const { data: ad, error: adError } = await supabaseClient
+    // Verify the ad belongs to the user using service role
+    const { data: ad, error: adError } = await supabaseAdmin
       .from('ads')
-      .select('id, title, user_id')
+      .select('id, title, user_id, status')
       .eq('id', adId)
-      .eq('user_id', user.id)
       .single();
 
     if (adError || !ad) {
-      throw new Error("Annonce non trouvée ou non autorisée");
+      console.error("Ad lookup error:", adError);
+      throw new Error("Annonce non trouvée");
+    }
+
+    // Verify ownership
+    if (ad.user_id !== user.id) {
+      throw new Error("Vous n'êtes pas autorisé à booster cette annonce");
     }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
