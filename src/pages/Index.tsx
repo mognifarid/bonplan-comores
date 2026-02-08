@@ -4,6 +4,7 @@ import { Hero } from '@/components/Hero';
 import { CategoryCard } from '@/components/CategoryCard';
 import { ListingCard } from '@/components/ListingCard';
 import { BoostedAdsSection } from '@/components/BoostedAdsSection';
+import { BoostPromoSection } from '@/components/BoostPromoSection';
 import { IslandSelector } from '@/components/IslandSelector';
 import { CATEGORIES, Island } from '@/types/listing';
 import { usePublicAds } from '@/hooks/useAds';
@@ -89,6 +90,9 @@ export default function Index() {
             )}
           </section>
         </div>
+
+        {/* Boost Promo Section */}
+        <BoostPromoSection />
       </main>
 
       <Footer />
