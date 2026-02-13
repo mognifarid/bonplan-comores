@@ -125,8 +125,8 @@ export default function CreateListing() {
       return;
     }
 
-    if (title.length < 4) {
-      toast({ title: "Titre trop court", description: "Le titre doit contenir au moins 4 caractères.", variant: "destructive" });
+    if (title.length < 3) {
+      toast({ title: "Titre trop court", description: "Le titre doit contenir au moins 3 caractères.", variant: "destructive" });
       return;
     }
 
@@ -225,7 +225,7 @@ export default function CreateListing() {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex: iPhone 14 Pro Max 256Go"
                   required
-                  minLength={4}
+                  minLength={3}
                 />
               </div>
 
@@ -348,16 +348,18 @@ export default function CreateListing() {
                 </div>
                 <div>
                   <Label>Ville</Label>
-                  <Select value={city} onValueChange={setCity} disabled={!island}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner ou saisir" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {selectedIslandData?.cities.map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Saisir ou choisir une ville"
+                    disabled={!island}
+                    list="city-suggestions"
+                  />
+                  <datalist id="city-suggestions">
+                    {selectedIslandData?.cities.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
                 </div>
               </div>
 
