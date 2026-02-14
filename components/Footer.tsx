@@ -45,7 +45,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li><Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">À propos</Link></li>
               <li>
-                <a href="mailto:mogni.farid@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <a href="mailto:bonplancomores@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
                   <Mail className="h-3 w-3" />
                   Contact
                 </a>
@@ -61,9 +61,9 @@ export function Footer() {
             © 2024 Le Bon Plan Comores. Tous droits réservés.
           </p>
           <div className="flex items-center gap-4">
-            <a href="mailto:mogni.farid@gmail.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a href="mailto:bonplancomores@gmail.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
               <Mail className="h-4 w-4" />
-              mogni.farid@gmail.com
+              bonplancomores@gmail.com
             </a>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-lg">
               <span className="text-lg">💳</span>
