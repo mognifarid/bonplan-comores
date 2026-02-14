@@ -14,6 +14,8 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AdminStats from "./pages/AdminStats";
+import AdminAds from "./pages/AdminAds";
+import AdminReports from "./pages/AdminReports";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -42,6 +44,8 @@ const App = () => (
             <Route path="/profil" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/stats" element={<AdminStats />} />
+            <Route path="/admin/annonces" element={<AdminAds />} />
+            <Route path="/admin/signalements" element={<AdminReports />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
