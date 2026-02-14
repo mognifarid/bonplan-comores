@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Plus, Menu, X, User, Bell, LogOut, Shield } from 'lucide-react';
+import { Search, Plus, Menu, X, User, Bell, LogOut, Shield, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -82,6 +82,9 @@ export function Header() {
                 <Button variant="ghost" size="sm" onClick={() => navigate('/mes-annonces')}>
                   <User className="h-4 w-4" />
                 </Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/messages')}>
+                  <MessageSquare className="h-4 w-4" />
+                </Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate('/profil')}>
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={profile?.avatar_url || undefined} />
@@ -136,6 +139,9 @@ export function Header() {
                 )}
                 <button onClick={() => { navigate('/mes-annonces'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <User className="h-5 w-5 text-muted-foreground" />Mes annonces
+                </button>
+                <button onClick={() => { navigate('/messages'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
+                  <MessageSquare className="h-5 w-5 text-muted-foreground" />Messages
                 </button>
                 <button onClick={() => { navigate('/profil'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{getInitials()}</AvatarFallback></Avatar>Mon profil

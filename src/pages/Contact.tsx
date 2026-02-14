@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -6,11 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Send, Loader2, MapPin, Phone } from 'lucide-react';
+import { Mail, Send, Loader2, MapPin, Phone, MessageSquare } from 'lucide-react';
 
 export default function Contact() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
 
@@ -31,20 +35,39 @@ export default function Contact() {
     }
 
     setLoading(true);
-    const { error } = await supabase.from('contact_messages').insert({
+
+    // Save to contact_messages
+    await supabase.from('contact_messages').insert({
       name: form.name.trim(),
       email: form.email.trim(),
       subject: form.subject.trim(),
       message: form.message.trim(),
     });
-    setLoading(false);
 
-    if (error) {
-      toast({ title: "Erreur", description: "Impossible d'envoyer le message.", variant: "destructive" });
-    } else {
-      toast({ title: "Message envoyé !", description: "Nous vous répondrons rapidement." });
-      setForm({ name: '', email: '', subject: '', message: '' });
+    // If user is logged in, also create a conversation for real-time chat
+    if (user) {
+      const { data: conv, error: convError } = await supabase.from('conversations').insert({
+        user_id: user.id,
+        subject: form.subject.trim(),
+      }).select().single();
+
+      if (!convError && conv) {
+        await supabase.from('messages').insert({
+          conversation_id: conv.id,
+          sender_id: user.id,
+          content: form.message.trim(),
+        });
+        setLoading(false);
+        toast({ title: "Message envoyé !", description: "Vous pouvez suivre la conversation dans vos messages." });
+        setForm({ name: '', email: '', subject: '', message: '' });
+        navigate('/messages');
+        return;
+      }
     }
+
+    setLoading(false);
+    toast({ title: "Message envoyé !", description: "Nous vous répondrons rapidement." });
+    setForm({ name: '', email: '', subject: '', message: '' });
   };
 
   return (
@@ -82,6 +105,19 @@ export default function Contact() {
               </div>
             </div>
           </div>
+
+          {user && (
+            <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-xl border border-primary/20 mb-6">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">Messagerie instantanée</p>
+                <p className="text-xs text-muted-foreground">Votre message créera une conversation où vous pourrez échanger en temps réel.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate('/messages')}>
+                Mes messages
+              </Button>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 border border-border space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
