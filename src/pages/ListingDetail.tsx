@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { ReportAdModal } from '@/components/ReportAdModal';
+import { ShareMenu } from '@/components/ShareMenu';
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +25,8 @@ export default function ListingDetail() {
   const { toast } = useToast();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [loadingPhone, setLoadingPhone] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
   const { data: listing, isLoading, error } = usePublicAd(id!);
@@ -65,6 +69,29 @@ export default function ListingDetail() {
     return new Intl.NumberFormat('fr-FR').format(price) + ' KMF';
   };
 
+  const handleShowPhone = async () => {
+    if (!user) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous pour voir le numéro du vendeur.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+    setLoadingPhone(true);
+    try {
+      const { data, error } = await supabase.rpc('get_ad_phone_number', { ad_id: listing.id });
+      if (error) throw error;
+      setPhoneNumber(data);
+      setShowPhone(true);
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de récupérer le numéro.", variant: "destructive" });
+    } finally {
+      setLoadingPhone(false);
+    }
+  };
+
   const handleSaveToggle = async () => {
     if (!user) {
       toast({
@@ -75,7 +102,6 @@ export default function ListingDetail() {
       navigate('/auth');
       return;
     }
-
     try {
       if (isSaved) {
         await unsaveAd.mutateAsync(listing.id);
@@ -84,25 +110,8 @@ export default function ListingDetail() {
         await saveAd.mutateAsync(listing.id);
         toast({ title: "Annonce sauvegardée" });
       }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: listing.title,
-        text: `${listing.title} - ${formatPrice(listing.price)}`,
-        url: window.location.href,
-      });
     } catch {
-      await navigator.clipboard.writeText(window.location.href);
-      toast({ title: "Lien copié !" });
+      toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     }
   };
 
@@ -200,15 +209,17 @@ export default function ListingDetail() {
               </div>
 
               <div className="pt-4 border-t border-border space-y-3">
-                {showPhone ? (
-                  <Button className="w-full gap-2" size="lg">
-                    <Phone className="h-4 w-4" />
-                    Contacter le vendeur
-                  </Button>
+                {showPhone && phoneNumber ? (
+                  <a href={`tel:${phoneNumber}`}>
+                    <Button className="w-full gap-2" size="lg">
+                      <Phone className="h-4 w-4" />
+                      {phoneNumber}
+                    </Button>
+                  </a>
                 ) : (
-                  <Button onClick={() => setShowPhone(true)} className="w-full gap-2" size="lg">
-                    <Phone className="h-4 w-4" />
-                    Voir le numéro
+                  <Button onClick={handleShowPhone} disabled={loadingPhone} className="w-full gap-2" size="lg">
+                    {loadingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
+                    {user ? 'Voir le numéro' : 'Connectez-vous pour voir le numéro'}
                   </Button>
                 )}
 
@@ -217,10 +228,11 @@ export default function ListingDetail() {
                     <Heart className={`h-4 w-4 ${isSaved ? 'fill-current text-destructive' : ''}`} />
                     {isSaved ? 'Sauvegardé' : 'Sauvegarder'}
                   </Button>
-                  <Button variant="outline" className="flex-1 gap-2" onClick={handleShare}>
-                    <Share2 className="h-4 w-4" />
-                    Partager
-                  </Button>
+                  <ShareMenu
+                    title={listing.title}
+                    price={formatPrice(listing.price)}
+                    url={window.location.href}
+                  />
                 </div>
 
                 <Button variant="ghost" className="w-full gap-2 text-muted-foreground" onClick={() => setShowReportModal(true)}>
