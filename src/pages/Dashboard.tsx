@@ -258,60 +258,113 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="boosts">
-            <div className="space-y-6">
-              {/* Boost options */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Booster vos annonces</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="border-2 border-amber-300 bg-amber-50/50">
-                      <CardContent className="p-4 text-center">
-                        <Star className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                        <h3 className="font-bold">Vedette</h3>
-                        <p className="text-2xl font-bold text-primary">6€</p>
-                        <p className="text-sm text-muted-foreground">Mise en avant premium</p>
-                        <p className="text-xs text-muted-foreground mt-1">Durée: 7 jours</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-2 border-red-300 bg-red-50/50">
-                      <CardContent className="p-4 text-center">
-                        <Zap className="h-8 w-8 text-red-500 mx-auto mb-2" />
-                        <h3 className="font-bold">Urgent</h3>
-                        <p className="text-2xl font-bold text-primary">3€</p>
-                        <p className="text-sm text-muted-foreground">Vente rapide</p>
-                        <p className="text-xs text-muted-foreground mt-1">Durée: 7 jours</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-2 border-blue-300 bg-blue-50/50">
-                      <CardContent className="p-4 text-center">
-                        <ArrowUp className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                        <h3 className="font-bold">Remontée</h3>
-                        <p className="text-2xl font-bold text-primary">1,50€</p>
-                        <p className="text-sm text-muted-foreground">Remonter en haut</p>
-                        <p className="text-xs text-muted-foreground mt-1">Durée: 7 jours</p>
-                      </CardContent>
-                    </Card>
+            <div className="space-y-8">
+              {/* Header section */}
+              <div className="text-center space-y-2">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                  <Rocket className="h-4 w-4" />
+                  Augmentez votre visibilité
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">Choisissez votre boost</h2>
+                <p className="text-muted-foreground max-w-md mx-auto text-sm">
+                  Vendez plus rapidement en mettant vos annonces en avant
+                </p>
+              </div>
+
+              {/* Boost options cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Vedette */}
+                <div className="group relative rounded-2xl border-2 border-amber-200 bg-gradient-to-b from-amber-50/80 to-background p-1 transition-all hover:shadow-xl hover:shadow-amber-100/50 hover:-translate-y-1">
+                  <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-amber-400 to-orange-500" />
+                  <div className="p-5 text-center space-y-3">
+                    <div className="w-11 h-11 mx-auto rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-200/50">
+                      <Star className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground text-lg">Vedette</h3>
+                      <p className="text-xs text-muted-foreground">Mise en avant premium</p>
+                    </div>
+                    <div className="py-2">
+                      <span className="text-3xl font-extrabold text-foreground">6€</span>
+                      <span className="text-xs text-muted-foreground ml-1">/ 7 jours</span>
+                    </div>
+                    <ul className="text-xs text-muted-foreground space-y-1.5 text-left px-2">
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />En tête des résultats</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />Badge premium visible</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />Visibilité maximale</li>
+                    </ul>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Urgent */}
+                <div className="group relative rounded-2xl border-2 border-red-200 bg-gradient-to-b from-red-50/80 to-background p-1 transition-all hover:shadow-xl hover:shadow-red-100/50 hover:-translate-y-1">
+                  <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-red-400 to-rose-500" />
+                  <div className="p-5 text-center space-y-3">
+                    <div className="w-11 h-11 mx-auto rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shadow-red-200/50">
+                      <Zap className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground text-lg">Urgent</h3>
+                      <p className="text-xs text-muted-foreground">Vente rapide</p>
+                    </div>
+                    <div className="py-2">
+                      <span className="text-3xl font-extrabold text-foreground">3€</span>
+                      <span className="text-xs text-muted-foreground ml-1">/ 7 jours</span>
+                    </div>
+                    <ul className="text-xs text-muted-foreground space-y-1.5 text-left px-2">
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />Badge "Urgent" affiché</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />Priorité dans les résultats</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />Attire l'attention</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Remontée */}
+                <div className="group relative rounded-2xl border-2 border-blue-200 bg-gradient-to-b from-blue-50/80 to-background p-1 transition-all hover:shadow-xl hover:shadow-blue-100/50 hover:-translate-y-1">
+                  <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-blue-400 to-indigo-500" />
+                  <div className="p-5 text-center space-y-3">
+                    <div className="w-11 h-11 mx-auto rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-200/50">
+                      <ArrowUp className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground text-lg">Remontée</h3>
+                      <p className="text-xs text-muted-foreground">Remonter en haut</p>
+                    </div>
+                    <div className="py-2">
+                      <span className="text-3xl font-extrabold text-foreground">1,50€</span>
+                      <span className="text-xs text-muted-foreground ml-1">/ 7 jours</span>
+                    </div>
+                    <ul className="text-xs text-muted-foreground space-y-1.5 text-left px-2">
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />Remonte en première page</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />Plus de visibilité</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />Option économique</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-center text-xs text-muted-foreground">
+                💳 Paiement sécurisé • Activation immédiate après paiement
+              </p>
 
               {/* Eligible ads for boost */}
               {approvedAds.filter(ad => !ad.boost).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Annonces éligibles au boost</CardTitle>
+                <Card className="rounded-2xl shadow-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Rocket className="h-4 w-4 text-primary" />
+                      Annonces éligibles au boost
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {approvedAds.filter(ad => !ad.boost).map((ad) => (
-                        <div key={ad.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div key={ad.id} className="flex items-center justify-between p-3 rounded-xl border bg-muted/30 hover:bg-muted/60 transition-colors">
                           <div className="flex items-center gap-3">
-                            <img src={ad.images[0]} alt={ad.title} className="w-12 h-12 rounded object-cover" />
+                            <img src={ad.images[0]} alt={ad.title} className="w-12 h-12 rounded-lg object-cover shadow-sm" />
                             <div>
-                              <p className="font-medium">{ad.title}</p>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="font-semibold text-sm text-foreground">{ad.title}</p>
+                              <p className="text-xs text-muted-foreground">
                                 {new Intl.NumberFormat('fr-FR').format(ad.price)} KMF
                               </p>
                             </div>
@@ -319,9 +372,9 @@ export default function Dashboard() {
                           <Button 
                             size="sm" 
                             onClick={() => handleBoostClick(ad.id)}
-                            className="gap-1"
+                            className="gap-1.5 rounded-lg"
                           >
-                            <Rocket className="h-4 w-4" />
+                            <Rocket className="h-3.5 w-3.5" />
                             Booster
                           </Button>
                         </div>
@@ -333,26 +386,29 @@ export default function Dashboard() {
 
               {/* Currently boosted ads */}
               {boostedAds.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Annonces boostées</CardTitle>
+                <Card className="rounded-2xl shadow-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Star className="h-4 w-4 text-amber-500" />
+                      Annonces boostées
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {boostedAds.map((ad) => (
-                        <div key={ad.id} className="flex items-center justify-between p-3 border rounded-lg bg-primary/5">
+                        <div key={ad.id} className="flex items-center justify-between p-3 rounded-xl border bg-primary/5 hover:bg-primary/10 transition-colors">
                           <div className="flex items-center gap-3">
-                            <img src={ad.images[0]} alt={ad.title} className="w-12 h-12 rounded object-cover" />
+                            <img src={ad.images[0]} alt={ad.title} className="w-12 h-12 rounded-lg object-cover shadow-sm" />
                             <div>
-                              <p className="font-medium">{ad.title}</p>
-                              <Badge variant="outline" className="gap-1 mt-1">
+                              <p className="font-semibold text-sm text-foreground">{ad.title}</p>
+                              <Badge variant="outline" className="gap-1 mt-1 text-xs">
                                 {getBoostIcon(ad.boost)}
                                 {ad.boost}
                               </Badge>
                             </div>
                           </div>
                           <Link to={`/annonce/${ad.id}`}>
-                            <Button variant="outline" size="sm">Voir</Button>
+                            <Button variant="outline" size="sm" className="rounded-lg">Voir</Button>
                           </Link>
                         </div>
                       ))}
