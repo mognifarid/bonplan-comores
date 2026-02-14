@@ -121,7 +121,14 @@ export default function AdminMessages() {
       .select('*')
       .eq('conversation_id', convId)
       .order('created_at', { ascending: true });
-    if (data) setMessages(data);
+    if (data) {
+      setMessages(data);
+      // Mark unread messages from others as read
+      const unreadIds = data.filter(m => !m.is_read && m.sender_id !== user?.id).map(m => m.id);
+      if (unreadIds.length > 0) {
+        await supabase.from('messages').update({ is_read: true }).in('id', unreadIds);
+      }
+    }
   };
 
   const handleSend = async () => {
