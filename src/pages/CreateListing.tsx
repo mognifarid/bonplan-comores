@@ -215,7 +215,7 @@ export default function CreateListing() {
             <CardTitle>Déposer une annonce</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6 bg-blue-200">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-neutral-200">
               {/* Title */}
               <div>
                 <Label htmlFor="title">Titre *</Label>
