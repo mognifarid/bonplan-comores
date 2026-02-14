@@ -103,6 +103,19 @@ export default function AdminStats() {
 
   const selectedUsers = allUsers.filter(u => selectedUserIds.has(u.user_id));
 
+  const handleMessageRedirect = async () => {
+    if (selectedUsers.length === 0) {
+      toast({ title: 'Aucun utilisateur sélectionné', description: 'Cochez au moins un utilisateur.', variant: 'destructive' });
+      return;
+    }
+    if (selectedUsers.length === 1) {
+      // Single user: navigate directly to admin messages for that user
+      navigate(`/admin/messages?user=${selectedUsers[0].user_id}`);
+    } else {
+      toast({ title: 'Sélection multiple', description: 'Veuillez sélectionner un seul utilisateur pour envoyer un message.', variant: 'destructive' });
+    }
+  };
+
   const openComposeDialog = (mode: 'message' | 'email') => {
     if (selectedUsers.length === 0) {
       toast({ title: 'Aucun utilisateur sélectionné', description: 'Cochez au moins un utilisateur.', variant: 'destructive' });
@@ -237,11 +250,11 @@ export default function AdminStats() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button
+                    <Button
                     variant="outline"
                     size="sm"
                     disabled={selectedUsers.length === 0}
-                    onClick={() => openComposeDialog('message')}
+                    onClick={handleMessageRedirect}
                     className="gap-2"
                   >
                     <MessageSquare className="h-4 w-4" />
