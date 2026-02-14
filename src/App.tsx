@@ -20,6 +20,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 import Contact from "./pages/Contact";
+import Messages from "./pages/Messages";
+import AdminMessages from "./pages/AdminMessages";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/alertes" element={<Alerts />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/admin/messages" element={<AdminMessages />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
