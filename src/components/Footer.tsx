@@ -40,9 +40,18 @@ export function Footer() {
 
           <div>
             <h4 className="font-semibold text-foreground mb-4">Contact</h4>
-            <a href="mailto:mogni.farid@gmail.com" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">
-              <Mail className="h-3 w-3" />mogni.farid@gmail.com
-            </a>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">
+                  <Mail className="h-3 w-3" />Nous contacter
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:bonplancomores@gmail.com" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">
+                  <Mail className="h-3 w-3" />bonplancomores@gmail.com
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 

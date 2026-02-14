@@ -19,6 +19,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/alertes" element={<Alerts />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
