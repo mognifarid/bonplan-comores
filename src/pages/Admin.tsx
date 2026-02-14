@@ -38,7 +38,7 @@ export default function Admin() {
           <div className="p-6 bg-card rounded-xl border border-border">
             <h3 className="font-semibold mb-2">Gestion des annonces</h3>
             <p className="text-sm text-muted-foreground mb-4">Modérer et gérer les annonces</p>
-            <Button variant="outline">Accéder</Button>
+            <Button variant="outline" onClick={() => navigate('/admin/annonces')}>Accéder</Button>
           </div>
           
           <div className="p-6 bg-card rounded-xl border border-border">
@@ -50,7 +50,7 @@ export default function Admin() {
           <div className="p-6 bg-card rounded-xl border border-border">
             <h3 className="font-semibold mb-2">Signalements</h3>
             <p className="text-sm text-muted-foreground mb-4">Gérer les signalements d'annonces</p>
-            <Button variant="outline">Voir les signalements</Button>
+            <Button variant="outline" onClick={() => navigate('/admin/signalements')}>Voir les signalements</Button>
           </div>
 
           <div className="p-6 bg-card rounded-xl border border-border">
