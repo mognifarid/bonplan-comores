@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Plus, Menu, X, User, Bell, LogOut, Shield, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsAdmin } from '@/hooks/useAdmin';
+import { supabase } from '@/integrations/supabase/client';
 
 export function Header() {
   const navigate = useNavigate();
@@ -17,6 +18,55 @@ export function Header() {
   const { data: isAdmin } = useIsAdmin();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread message count
+  useEffect(() => {
+    if (!user) { setUnreadCount(0); return; }
+
+    const fetchUnread = async () => {
+      if (isAdmin) {
+        // Admin: count unread messages from users (not sent by admin)
+        const { data: convs } = await supabase.from('conversations').select('id');
+        if (convs?.length) {
+          const { count } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .in('conversation_id', convs.map(c => c.id))
+            .eq('is_read', false)
+            .neq('sender_id', user.id);
+          setUnreadCount(count || 0);
+        }
+      } else {
+        // User: count unread messages not sent by themselves
+        const { data: convs } = await supabase.from('conversations').select('id').eq('user_id', user.id);
+        if (convs?.length) {
+          const { count } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .in('conversation_id', convs.map(c => c.id))
+            .eq('is_read', false)
+            .neq('sender_id', user.id);
+          setUnreadCount(count || 0);
+        }
+      }
+    };
+
+    fetchUnread();
+
+    // Listen for new messages in realtime
+    const channel = supabase
+      .channel('header-unread')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+        fetchUnread();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => {
+        fetchUnread();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, isAdmin]);
 
   const getInitials = () => {
     if (profile?.full_name) {
@@ -40,6 +90,12 @@ export function Header() {
     toast({ title: "Déconnexion", description: "Vous avez été déconnecté." });
     navigate('/');
   };
+
+  const messageBadge = unreadCount > 0 ? (
+    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+      {unreadCount > 99 ? '99+' : unreadCount}
+    </span>
+  ) : null;
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
@@ -82,8 +138,9 @@ export function Header() {
                 <Button variant="ghost" size="sm" onClick={() => navigate('/mes-annonces')}>
                   <User className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/messages')}>
+                <Button variant="ghost" size="sm" className="relative" onClick={() => navigate(isAdmin ? '/admin/messages' : '/messages')}>
                   <MessageSquare className="h-4 w-4" />
+                  {messageBadge}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate('/profil')}>
                   <Avatar className="h-6 w-6">
@@ -140,8 +197,14 @@ export function Header() {
                 <button onClick={() => { navigate('/mes-annonces'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <User className="h-5 w-5 text-muted-foreground" />Mes annonces
                 </button>
-                <button onClick={() => { navigate('/messages'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" />Messages
+                <button onClick={() => { navigate(isAdmin ? '/admin/messages' : '/messages'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left relative">
+                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                  Messages
+                  {unreadCount > 0 && (
+                    <span className="ml-auto min-w-[20px] h-[20px] rounded-full bg-destructive text-destructive-foreground text-[11px] font-bold flex items-center justify-center px-1.5">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </button>
                 <button onClick={() => { navigate('/profil'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{getInitials()}</AvatarFallback></Avatar>Mon profil
