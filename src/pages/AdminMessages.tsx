@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,7 @@ interface UserProfile {
 
 export default function AdminMessages() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
   const { toast } = useToast();
@@ -82,6 +83,35 @@ export default function AdminMessages() {
   useEffect(() => {
     if (isAdmin) fetchConversations();
   }, [isAdmin]);
+
+  // Handle ?user= param: find existing open conversation or create one
+  useEffect(() => {
+    const targetUserId = searchParams.get('user');
+    if (!targetUserId || !isAdmin || !user || loading) return;
+
+    const openConvForUser = async () => {
+      // Check if there's an existing open conversation with this user
+      const existingConv = conversations.find(c => c.user_id === targetUserId && c.status === 'open');
+      if (existingConv) {
+        setSelectedConversation(existingConv.id);
+      } else {
+        // Create a new conversation
+        const { data: conv, error } = await supabase
+          .from('conversations')
+          .insert({ user_id: targetUserId, subject: 'Nouveau message' })
+          .select()
+          .single();
+        if (conv && !error) {
+          setConversations(prev => [conv, ...prev]);
+          setSelectedConversation(conv.id);
+        }
+      }
+      // Clear the param so it doesn't re-trigger
+      setSearchParams({}, { replace: true });
+    };
+
+    openConvForUser();
+  }, [searchParams, isAdmin, user, loading, conversations.length]);
 
   useEffect(() => {
     if (selectedConversation) {
