@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -20,6 +20,13 @@ export default function CreateListing() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const createAd = useCreateAd();
+
+  // Redirect unauthenticated visitors to login page
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
