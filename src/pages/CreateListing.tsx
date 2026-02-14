@@ -438,8 +438,8 @@ export default function CreateListing() {
                     `}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-full ${option.bgClass}`}>
-                        <Icon className={`h-5 w-5 ${option.iconClass}`} />
+                      <div className={`p-2 rounded-full ${option.bgClass}`}>
+                        <Icon className={`h-4 w-4 ${option.iconClass}`} />
                       </div>
                       <div>
                         <p className="font-semibold">{info.label}</p>
