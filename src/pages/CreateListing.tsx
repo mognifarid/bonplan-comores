@@ -211,6 +211,9 @@ export default function CreateListing() {
                 minLength={3}
                 className="mt-1.5"
               />
+              {title.length > 0 && title.length < 3 && (
+                <p className="text-sm text-destructive mt-1">Minimum 3 caractères ({title.length}/3)</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -346,6 +349,9 @@ export default function CreateListing() {
                 minLength={20}
                 className="mt-1.5"
               />
+              {description.length > 0 && description.length < 20 && (
+                <p className="text-sm text-destructive mt-1">Minimum 20 caractères ({description.length}/20)</p>
+              )}
             </div>
 
             <div>
