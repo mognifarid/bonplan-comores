@@ -102,8 +102,8 @@ export function BoostPromoSection() {
                 >
                   <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${option.gradient}`} />
                   <CardHeader className="text-center pb-2">
-                    <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-white shadow-md mb-3`}>
-                      <Icon className={`h-8 w-8 ${option.iconClass}`} />
+                    <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center bg-white shadow-md mb-3`}>
+                      <Icon className={`h-5 w-5 ${option.iconClass}`} />
                     </div>
                     <CardTitle className="text-xl">{info.label}</CardTitle>
                     <CardDescription>{info.description}</CardDescription>
