@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export type BoostType = 'vedette' | 'urgent' | 'remontee';
+export type PaymentProvider = 'stripe' | 'paypal';
 
 export const BOOST_PRICES = {
   vedette: { price: 6, label: 'Vedette', description: 'Mise en avant premium pendant 7 jours' },
@@ -14,15 +15,16 @@ export function useBoostAd() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ adId, boostType }: { adId: string; boostType: BoostType }) => {
-      const { data, error } = await supabase.functions.invoke('create-boost-payment', {
+    mutationFn: async ({ adId, boostType, provider = 'stripe' }: { adId: string; boostType: BoostType; provider?: PaymentProvider }) => {
+      const functionName = provider === 'paypal' ? 'create-paypal-boost' : 'create-boost-payment';
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: { adId, boostType },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       
-      return data;
+      return { ...data, provider };
     },
     onSuccess: (data) => {
       if (data?.url) {
@@ -44,11 +46,18 @@ export function useVerifyPayment() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (sessionId: string) => {
+    mutationFn: async ({ sessionId, orderId, provider = 'stripe' }: { sessionId?: string; orderId?: string; provider?: PaymentProvider }) => {
+      if (provider === 'paypal' && orderId) {
+        const { data, error } = await supabase.functions.invoke('capture-paypal-boost', {
+          body: { orderId },
+        });
+        if (error) throw error;
+        return data;
+      }
+      
       const { data, error } = await supabase.functions.invoke('verify-payment', {
         body: { sessionId },
       });
-
       if (error) throw error;
       return data;
     },
