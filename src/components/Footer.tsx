@@ -55,8 +55,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center">
+        <div className="border-t border-border mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-2">
           <p className="text-sm text-muted-foreground">© 2024 Le Bon Plan Comores. Tous droits réservés.</p>
+          <Link to="/mentions-legales" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            Mentions légales
+          </Link>
         </div>
       </div>
     </footer>
