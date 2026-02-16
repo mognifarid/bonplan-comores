@@ -33,11 +33,11 @@ export default function Dashboard() {
   useEffect(() => {
     const success = searchParams.get('success');
     const sessionId = searchParams.get('session_id');
+    const provider = searchParams.get('provider');
     
     if (success === 'true' && sessionId) {
-      verifyPayment.mutate(sessionId);
+      verifyPayment.mutate({ sessionId, provider: (provider as 'stripe' | 'paypal') || 'stripe' });
       setActiveTab('boosts');
-      // Clean URL
       window.history.replaceState({}, '', '/mes-annonces');
     }
   }, [searchParams]);
