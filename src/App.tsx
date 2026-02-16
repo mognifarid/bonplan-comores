@@ -26,6 +26,7 @@ import Messages from "./pages/Messages";
 import AdminMessages from "./pages/AdminMessages";
 import AdminReviews from "./pages/AdminReviews";
 import MentionsLegales from "./pages/MentionsLegales";
+import CGU from "./pages/CGU";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/admin/avis" element={<AdminReviews />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/mentions-legales" element={<MentionsLegales />} />
+            <Route path="/cgu" element={<CGU />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
