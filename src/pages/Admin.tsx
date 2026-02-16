@@ -58,6 +58,12 @@ export default function Admin() {
             <p className="text-sm text-muted-foreground mb-4">Répondre aux messages des utilisateurs</p>
             <Button variant="outline" onClick={() => navigate('/admin/messages')}>Voir les messages</Button>
           </div>
+
+          <div className="p-6 bg-card rounded-xl border border-border">
+            <h3 className="font-semibold mb-2">Avis utilisateurs</h3>
+            <p className="text-sm text-muted-foreground mb-4">Modérer les avis avant publication</p>
+            <Button variant="outline" onClick={() => navigate('/admin/avis')}>Modérer les avis</Button>
+          </div>
         </div>
       </main>
 

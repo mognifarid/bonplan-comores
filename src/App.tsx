@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import Contact from "./pages/Contact";
 import Messages from "./pages/Messages";
 import AdminMessages from "./pages/AdminMessages";
+import AdminReviews from "./pages/AdminReviews";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/alertes" element={<Alerts />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/admin/messages" element={<AdminMessages />} />
+            <Route path="/admin/avis" element={<AdminReviews />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

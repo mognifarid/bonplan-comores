@@ -286,6 +286,7 @@ export type Database = {
           rating: number
           reviewer_id: string
           seller_id: string
+          status: string
         }
         Insert: {
           ad_id: string
@@ -295,6 +296,7 @@ export type Database = {
           rating: number
           reviewer_id: string
           seller_id: string
+          status?: string
         }
         Update: {
           ad_id?: string
@@ -304,6 +306,7 @@ export type Database = {
           rating?: number
           reviewer_id?: string
           seller_id?: string
+          status?: string
         }
         Relationships: [
           {
