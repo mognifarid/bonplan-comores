@@ -77,7 +77,23 @@ export function usePublicAd(id: string) {
         .single();
 
       if (error) throw error;
-      return transformAdToListing(data);
+      const listing = transformAdToListing(data);
+
+      // Fetch seller profile
+      if (data.user_id) {
+        const { data: profile } = await supabase
+          .from('profiles_public')
+          .select('full_name, avatar_url')
+          .eq('user_id', data.user_id)
+          .maybeSingle();
+
+        if (profile) {
+          listing.userName = profile.full_name || '';
+          listing.userAvatarUrl = profile.avatar_url || undefined;
+        }
+      }
+
+      return listing;
     },
     enabled: !!id,
   });

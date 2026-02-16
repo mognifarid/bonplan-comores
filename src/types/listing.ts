@@ -28,6 +28,7 @@ export interface Listing {
   userId: string;
   userName: string;
   userPhone?: string;
+  userAvatarUrl?: string;
   views: number;
 }
 
