@@ -7,7 +7,11 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, MessageSquare, Send, ArrowLeft, Plus } from 'lucide-react';
+import { Loader2, MessageSquare, Send, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -119,6 +123,19 @@ export default function Messages() {
     setSending(false);
   };
 
+  const handleDeleteConversation = async (convId: string) => {
+    // Delete messages first, then conversation
+    await supabase.from('messages').delete().eq('conversation_id', convId);
+    const { error } = await supabase.from('conversations').delete().eq('id', convId);
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de supprimer la conversation.", variant: "destructive" });
+    } else {
+      if (selectedConversation === convId) setSelectedConversation(null);
+      setConversations(prev => prev.filter(c => c.id !== convId));
+      toast({ title: "Conversation supprimée" });
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -165,23 +182,45 @@ export default function Messages() {
                 </div>
               ) : (
                 conversations.map(conv => (
-                  <button
-                    key={conv.id}
-                    onClick={() => setSelectedConversation(conv.id)}
-                    className={`w-full text-left p-4 border-b border-border hover:bg-muted/50 transition-colors ${
-                      selectedConversation === conv.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
-                    }`}
-                  >
-                    <p className="font-medium text-sm text-foreground truncate">{conv.subject}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
-                    </p>
-                    <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${
-                      conv.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {conv.status === 'open' ? 'Ouvert' : 'Fermé'}
-                    </span>
-                  </button>
+                  <div key={conv.id} className="relative group">
+                    <button
+                      onClick={() => setSelectedConversation(conv.id)}
+                      className={`w-full text-left p-4 border-b border-border hover:bg-muted/50 transition-colors ${
+                        selectedConversation === conv.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
+                      }`}
+                    >
+                      <p className="font-medium text-sm text-foreground truncate pr-8">{conv.subject}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                      </p>
+                      <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${
+                        conv.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {conv.status === 'open' ? 'Ouvert' : 'Fermé'}
+                      </span>
+                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="absolute top-3 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Supprimer la conversation ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action est irréversible. Tous les messages seront supprimés.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteConversation(conv.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Supprimer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 ))
               )}
             </div>
