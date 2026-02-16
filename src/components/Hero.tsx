@@ -4,11 +4,13 @@ import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStats } from '@/hooks/useStats';
+import { useIsAdmin } from '@/hooks/useAdmin';
 
 export function Hero() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: stats } = useStats();
+  const { data: isAdmin } = useIsAdmin();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,12 +72,14 @@ export function Hero() {
               </p>
               <p className="text-sm text-primary-foreground/70">Annonces actives</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl md:text-3xl font-bold text-primary-foreground transition-all duration-300">
-                {stats?.totalUsers ?? 0}
-              </p>
-              <p className="text-sm text-primary-foreground/70">Utilisateurs</p>
-            </div>
+            {isAdmin && (
+              <div className="text-center">
+                <p className="text-2xl md:text-3xl font-bold text-primary-foreground transition-all duration-300">
+                  {stats?.totalUsers ?? 0}
+                </p>
+                <p className="text-sm text-primary-foreground/70">Utilisateurs</p>
+              </div>
+            )}
             <div className="text-center">
               <p className="text-2xl md:text-3xl font-bold text-primary-foreground">3</p>
               <p className="text-sm text-primary-foreground/70">Îles</p>
