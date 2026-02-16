@@ -56,6 +56,7 @@ export default function AdminMessages() {
   const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversationUsers, setConversationUsers] = useState<Record<string, UserProfile>>({});
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -141,7 +142,22 @@ export default function AdminMessages() {
       .from('conversations')
       .select('*')
       .order('updated_at', { ascending: false });
-    if (data) setConversations(data);
+    if (data) {
+      setConversations(data);
+      // Fetch user profiles for all conversations
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds);
+        if (profiles) {
+          const profileMap: Record<string, UserProfile> = {};
+          profiles.forEach(p => { profileMap[p.user_id] = p; });
+          setConversationUsers(profileMap);
+        }
+      }
+    }
     setLoading(false);
   };
 
@@ -312,6 +328,20 @@ export default function AdminMessages() {
                     selectedConversation === conv.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
                   }`}
                 >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Avatar className="h-6 w-6">
+                      {conversationUsers[conv.user_id]?.avatar_url ? (
+                        <img src={conversationUsers[conv.user_id].avatar_url!} alt="" className="h-full w-full object-cover rounded-full" />
+                      ) : (
+                        <AvatarFallback className="text-[10px]">
+                          {(conversationUsers[conv.user_id]?.full_name || '?')[0].toUpperCase()}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <span className="text-xs font-semibold text-foreground truncate">
+                      {conversationUsers[conv.user_id]?.full_name || 'Utilisateur'}
+                    </span>
+                  </div>
                   <p className="font-medium text-sm text-foreground truncate">{conv.subject}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
@@ -337,7 +367,9 @@ export default function AdminMessages() {
                     </Button>
                     <div>
                       <p className="font-medium text-sm text-foreground">{selectedConv.subject}</p>
-                      <p className="text-xs text-muted-foreground">ID: {selectedConv.user_id.slice(0, 8)}...</p>
+                      <p className="text-xs text-muted-foreground">
+                        {conversationUsers[selectedConv.user_id]?.full_name || 'Utilisateur'}
+                      </p>
                     </div>
                   </div>
                   {selectedConv.status === 'open' && (
