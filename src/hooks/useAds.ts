@@ -93,6 +93,9 @@ export function usePublicAd(id: string) {
         }
       }
 
+      // Increment views
+      supabase.rpc('increment_ad_views', { p_ad_id: id } as any).then(() => {});
+
       return listing;
     },
     enabled: !!id,
