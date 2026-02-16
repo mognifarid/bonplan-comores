@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ReportAdModal } from '@/components/ReportAdModal';
 import { ShareMenu } from '@/components/ShareMenu';
+import { ReviewsSection } from '@/components/ReviewsSection';
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -194,6 +195,9 @@ export default function ListingDetail() {
               <h2 className="text-xl font-semibold text-foreground mb-4">Description</h2>
               <p className="text-muted-foreground whitespace-pre-wrap">{listing.description}</p>
             </div>
+
+            {/* Reviews */}
+            <ReviewsSection adId={listing.id} sellerId={listing.userId} />
           </div>
 
           {/* Sidebar */}

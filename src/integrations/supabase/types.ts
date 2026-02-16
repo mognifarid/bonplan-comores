@@ -277,6 +277,51 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          ad_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewer_id: string
+          seller_id: string
+        }
+        Insert: {
+          ad_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewer_id: string
+          seller_id: string
+        }
+        Update: {
+          ad_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewer_id?: string
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_ads: {
         Row: {
           ad_id: string
@@ -460,6 +505,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_ad_views: { Args: { p_ad_id: string }; Returns: undefined }
       user_has_approved_ads: {
         Args: { profile_user_id: string }
         Returns: boolean
