@@ -18,6 +18,7 @@ interface Review {
   reviewer_id: string;
   reviewer_name?: string;
   reviewer_avatar?: string;
+  status?: string;
 }
 
 interface ReviewsSectionProps {
@@ -138,6 +139,15 @@ export function ReviewsSection({ adId, sellerId }: ReviewsSectionProps) {
           </div>
         )}
       </div>
+
+      {/* Pending notice */}
+      {user && reviews.some(r => r.reviewer_id === user.id && r.status === 'pending') && (
+        <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+          <p className="text-sm text-amber-700 dark:text-amber-400">
+            ⏳ Votre avis est en attente de modération par l'administrateur.
+          </p>
+        </div>
+      )}
 
       {/* Form */}
       {canReview && (
