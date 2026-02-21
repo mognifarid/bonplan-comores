@@ -50,13 +50,17 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
         <p className="text-xl font-bold text-primary">{formatPrice(listing.price)}</p>
         
         {listing.userName && (
-          <div className="flex items-center gap-2">
+          <Link
+            to={`/vendeur/${listing.userId}`}
+            className="flex items-center gap-2 hover:text-primary transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Avatar className="h-5 w-5">
               <AvatarImage src={listing.userAvatarUrl} alt={listing.userName} />
               <AvatarFallback className="text-[10px]"><User className="h-3 w-3" /></AvatarFallback>
             </Avatar>
-            <span className="text-sm text-muted-foreground truncate">{listing.userName}</span>
-          </div>
+            <span className="text-sm text-muted-foreground hover:text-primary truncate">{listing.userName}</span>
+          </Link>
         )}
 
         <div className="flex items-center justify-between text-sm text-muted-foreground">
