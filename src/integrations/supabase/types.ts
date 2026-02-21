@@ -500,6 +500,17 @@ export type Database = {
       }
       get_ad_phone_number: { Args: { ad_id: string }; Returns: string }
       get_admin_stats: { Args: never; Returns: Json }
+      get_admin_users: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          email: string
+          full_name: string
+          phone: string
+          user_id: string
+        }[]
+      }
       get_public_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
