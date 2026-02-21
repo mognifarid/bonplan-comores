@@ -54,31 +54,31 @@ export default function CreateListing() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const boostOptions = [
-    {
-      type: 'vedette' as BoostType,
-      icon: Star,
-      borderClass: 'border-amber-400',
-      bgClass: 'bg-amber-50',
-      iconClass: 'text-amber-500',
-      selectedBg: 'bg-amber-100'
-    },
-    {
-      type: 'urgent' as BoostType,
-      icon: Zap,
-      borderClass: 'border-red-400',
-      bgClass: 'bg-red-50',
-      iconClass: 'text-red-500',
-      selectedBg: 'bg-red-100'
-    },
-    {
-      type: 'remontee' as BoostType,
-      icon: ArrowUp,
-      borderClass: 'border-blue-400',
-      bgClass: 'bg-blue-50',
-      iconClass: 'text-blue-500',
-      selectedBg: 'bg-blue-100'
-    }
-  ];
+  {
+    type: 'vedette' as BoostType,
+    icon: Star,
+    borderClass: 'border-amber-400',
+    bgClass: 'bg-amber-50',
+    iconClass: 'text-amber-500',
+    selectedBg: 'bg-amber-100'
+  },
+  {
+    type: 'urgent' as BoostType,
+    icon: Zap,
+    borderClass: 'border-red-400',
+    bgClass: 'bg-red-50',
+    iconClass: 'text-red-500',
+    selectedBg: 'bg-red-100'
+  },
+  {
+    type: 'remontee' as BoostType,
+    icon: ArrowUp,
+    borderClass: 'border-blue-400',
+    bgClass: 'bg-blue-50',
+    iconClass: 'text-blue-500',
+    selectedBg: 'bg-blue-100'
+  }];
+
 
   const selectedIslandData = ISLANDS.find((i) => i.value === island);
   const subcategories = category ? SUBCATEGORIES[category] || [] : [];
@@ -180,8 +180,8 @@ export default function CreateListing() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!user) {
@@ -190,7 +190,7 @@ export default function CreateListing() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-green-950">
       <Header />
 
       <main className="flex-1 container py-8 max-w-2xl animate-slide-up">
@@ -221,44 +221,44 @@ export default function CreateListing() {
                 placeholder="Ex: iPhone 14 Pro Max 256Go"
                 required
                 minLength={3}
-                className="mt-1.5"
-              />
-              {title.length > 0 && title.length < 3 && (
-                <p className="text-sm text-destructive mt-1">Minimum 3 caractères ({title.length}/3)</p>
-              )}
+                className="mt-1.5" />
+
+              {title.length > 0 && title.length < 3 &&
+              <p className="text-sm text-destructive mt-1">Minimum 3 caractères ({title.length}/3)</p>
+              }
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Catégorie *</Label>
-                <Select value={category} onValueChange={(v) => { setCategory(v); setSubcategory(''); }}>
+                <Select value={category} onValueChange={(v) => {setCategory(v);setSubcategory('');}}>
                   <SelectTrigger className="mt-1.5"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.slug} value={cat.slug}>{cat.icon} {cat.name}</SelectItem>
-                    ))}
+                    {CATEGORIES.map((cat) =>
+                    <SelectItem key={cat.slug} value={cat.slug}>{cat.icon} {cat.name}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
 
-              {subcategories.length > 0 && (
-                <div>
+              {subcategories.length > 0 &&
+              <div>
                   <Label>Sous-catégorie</Label>
                   <Select value={subcategory} onValueChange={setSubcategory}>
                     <SelectTrigger className="mt-1.5"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                     <SelectContent>
-                      {subcategories.map((sub) => (
-                        <SelectItem key={sub} value={sub}>{sub}</SelectItem>
-                      ))}
+                      {subcategories.map((sub) =>
+                    <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
-              )}
+              }
             </div>
 
             {/* Vehicle specific fields */}
-            {category === 'vehicules' && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {category === 'vehicules' &&
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label>Marque</Label>
                   <Select value={vehicleBrand} onValueChange={setVehicleBrand}>
@@ -281,18 +281,18 @@ export default function CreateListing() {
                   </Select>
                 </div>
               </div>
-            )}
+            }
 
             {/* Real estate specific fields */}
-            {category === 'immobilier' && (
-              <div>
+            {category === 'immobilier' &&
+            <div>
                 <Label>Nombre de pièces</Label>
                 <Select value={roomCount} onValueChange={setRoomCount}>
                   <SelectTrigger className="mt-1.5"><SelectValue placeholder="Pièces" /></SelectTrigger>
                   <SelectContent>{ROOM_COUNTS.map((c) => <SelectItem key={c} value={c}>{c} pièce{c !== '1' ? 's' : ''}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-            )}
+            }
 
             <div>
               <Label htmlFor="price">Prix (KMF)</Label>
@@ -303,8 +303,8 @@ export default function CreateListing() {
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="0 pour gratuit"
                 min="0"
-                className="mt-1.5"
-              />
+                className="mt-1.5" />
+
             </div>
           </section>
 
@@ -318,7 +318,7 @@ export default function CreateListing() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Île *</Label>
-                <Select value={island} onValueChange={(v) => { setIsland(v); setCity(''); }}>
+                <Select value={island} onValueChange={(v) => {setIsland(v);setCity('');}}>
                   <SelectTrigger className="mt-1.5"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                   <SelectContent>
                     {ISLANDS.map((i) => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
@@ -333,8 +333,8 @@ export default function CreateListing() {
                   placeholder="Saisir ou choisir une ville"
                   disabled={!island}
                   list="city-suggestions"
-                  className="mt-1.5"
-                />
+                  className="mt-1.5" />
+
                 <datalist id="city-suggestions">
                   {selectedIslandData?.cities.map((c) => <option key={c} value={c} />)}
                 </datalist>
@@ -359,11 +359,11 @@ export default function CreateListing() {
                 rows={5}
                 required
                 minLength={20}
-                className="mt-1.5"
-              />
-              {description.length > 0 && description.length < 20 && (
-                <p className="text-sm text-destructive mt-1">Minimum 20 caractères ({description.length}/20)</p>
-              )}
+                className="mt-1.5" />
+
+              {description.length > 0 && description.length < 20 &&
+              <p className="text-sm text-destructive mt-1">Minimum 20 caractères ({description.length}/20)</p>
+              }
             </div>
 
             <div>
@@ -376,8 +376,8 @@ export default function CreateListing() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+269..."
-                className="mt-1.5"
-              />
+                className="mt-1.5" />
+
             </div>
           </section>
 
@@ -389,35 +389,35 @@ export default function CreateListing() {
             </div>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {images.map((img, idx) => (
-                <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-muted ring-1 ring-border group">
+              {images.map((img, idx) =>
+              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-muted ring-1 ring-border group">
                   <img src={img} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <button
-                    type="button"
-                    onClick={() => removeImage(idx)}
-                    className="absolute top-1.5 right-1.5 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                  >
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
+
                     <X className="h-3 w-3" />
                   </button>
                 </div>
-              ))}
+              )}
               <label className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center cursor-pointer transition-all">
-                {uploading ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                ) : (
-                  <>
+                {uploading ?
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> :
+
+                <>
                     <ImagePlus className="h-7 w-7 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground mt-1 font-medium">Ajouter</span>
                   </>
-                )}
+                }
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleImageUpload}
                   className="hidden"
-                  disabled={uploading}
-                />
+                  disabled={uploading} />
+
               </label>
             </div>
           </section>
@@ -444,11 +444,11 @@ export default function CreateListing() {
                     onClick={() => setSelectedBoost(isSelected ? null : option.type)}
                     className={`
                       relative flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all
-                      ${isSelected
-                        ? `${option.borderClass} ${option.selectedBg} shadow-md`
-                        : `border-border hover:${option.borderClass} ${option.bgClass}`}
-                    `}
-                  >
+                      ${isSelected ?
+                    `${option.borderClass} ${option.selectedBg} shadow-md` :
+                    `border-border hover:${option.borderClass} ${option.bgClass}`}
+                    `}>
+
                     <div className="flex items-center gap-3">
                       <div className={`p-2 rounded-full ${option.bgClass}`}>
                         <Icon className={`h-4 w-4 ${option.iconClass}`} />
@@ -463,21 +463,21 @@ export default function CreateListing() {
                         <p className="text-lg font-bold text-primary">{info.price}€</p>
                         <p className="text-xs text-muted-foreground">7 jours</p>
                       </div>
-                      {isSelected && (
-                        <div className="absolute top-2 right-2">
+                      {isSelected &&
+                      <div className="absolute top-2 right-2">
                           <Check className={`h-5 w-5 ${option.iconClass}`} />
                         </div>
-                      )}
+                      }
                     </div>
-                  </div>
-                );
+                  </div>);
+
               })}
 
-              {selectedBoost && (
-                <p className="text-sm text-center text-muted-foreground pt-2">
+              {selectedBoost &&
+              <p className="text-sm text-center text-muted-foreground pt-2">
                   💳 Vous serez redirigé vers le paiement après la création de l'annonce
                 </p>
-              )}
+              }
             </div>
           </section>
 
@@ -492,8 +492,8 @@ export default function CreateListing() {
                 id="accept-terms"
                 checked={acceptedTerms}
                 onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                className="mt-0.5"
-              />
+                className="mt-0.5" />
+
               <label htmlFor="accept-terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
                 J'accepte les{' '}
                 <Link to="/mentions-legales" target="_blank" className="text-primary underline hover:text-primary/80">
@@ -513,23 +513,23 @@ export default function CreateListing() {
             type="submit"
             className="w-full h-12 text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
             size="lg"
-            disabled={createAd.isPending || !category || !island || !acceptedTerms}
-          >
-            {createAd.isPending ? (
-              <>
+            disabled={createAd.isPending || !category || !island || !acceptedTerms}>
+
+            {createAd.isPending ?
+            <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 Création...
-              </>
-            ) : selectedBoost ? (
-              `Déposer et payer le boost (${BOOST_PRICES[selectedBoost].price}€)`
-            ) : (
-              'Déposer mon annonce'
-            )}
+              </> :
+            selectedBoost ?
+            `Déposer et payer le boost (${BOOST_PRICES[selectedBoost].price}€)` :
+
+            'Déposer mon annonce'
+            }
           </Button>
         </form>
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>);
+
 }
