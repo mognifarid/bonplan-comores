@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -30,13 +30,13 @@ export default function Profile() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   // Initialize form with profile data
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
       setPhone(profile.phone || '');
       setBirthDate(profile.birth_date || '');
     }
-  });
+  }, [profile]);
 
   if (authLoading || profileLoading) {
     return (
