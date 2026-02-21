@@ -34,6 +34,7 @@ interface UserProfile {
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
+  email: string | null;
   created_at: string;
 }
 
@@ -65,11 +66,8 @@ export default function AdminStats() {
 
   const fetchUsers = async () => {
     setUsersLoading(true);
-    const { data } = await supabase
-      .from('profiles')
-      .select('user_id, full_name, avatar_url, phone, created_at')
-      .order('created_at', { ascending: false });
-    setAllUsers(data || []);
+    const { data } = await supabase.rpc('get_admin_users');
+    setAllUsers((data as UserProfile[]) || []);
     setUsersLoading(false);
   };
 
@@ -81,7 +79,8 @@ export default function AdminStats() {
     if (!userSearch.trim()) return true;
     const search = userSearch.toLowerCase();
     return (u.full_name?.toLowerCase().includes(search)) ||
-           (u.phone?.toLowerCase().includes(search));
+           (u.phone?.toLowerCase().includes(search)) ||
+           (u.email?.toLowerCase().includes(search));
   });
 
   const toggleUser = (userId: string) => {
@@ -289,20 +288,21 @@ export default function AdminStats() {
                           </button>
                         </th>
                         <th className="p-3 text-left text-sm font-medium text-muted-foreground">Nom complet</th>
-                        <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden sm:table-cell">Téléphone</th>
-                        <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden md:table-cell">Inscrit le</th>
+                        <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden sm:table-cell">Email</th>
+                        <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden md:table-cell">Téléphone</th>
+                        <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden lg:table-cell">Inscrit le</th>
                       </tr>
                     </thead>
                     <tbody>
                       {usersLoading ? (
                         <tr>
-                          <td colSpan={4} className="p-8 text-center">
+                          <td colSpan={5} className="p-8 text-center">
                             <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
                           </td>
                         </tr>
                       ) : filteredUsers.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="p-8 text-center text-muted-foreground text-sm">
+                          <td colSpan={5} className="p-8 text-center text-muted-foreground text-sm">
                             Aucun utilisateur trouvé
                           </td>
                         </tr>
@@ -332,14 +332,17 @@ export default function AdminStats() {
                                     </AvatarFallback>
                                   </Avatar>
                                   <span className="text-sm font-medium text-foreground">
-                                    {u.full_name || 'Sans nom'}
+                                    {u.full_name || u.email || 'Sans nom'}
                                   </span>
                                 </div>
                               </td>
                               <td className="p-3 text-sm text-muted-foreground hidden sm:table-cell">
-                                {u.phone || '—'}
+                                {u.email || '—'}
                               </td>
                               <td className="p-3 text-sm text-muted-foreground hidden md:table-cell">
+                                {u.phone || '—'}
+                              </td>
+                              <td className="p-3 text-sm text-muted-foreground hidden lg:table-cell">
                                 {format(new Date(u.created_at), 'dd MMM yyyy', { locale: fr })}
                               </td>
                             </tr>
