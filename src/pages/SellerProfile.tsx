@@ -1,14 +1,16 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ListingCard } from '@/components/ListingCard';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, User, ShoppingBag, Star } from 'lucide-react';
+import { Loader2, User, ShoppingBag, Star, MessageSquare } from 'lucide-react';
 import { CATEGORIES, type Listing, type BoostType } from '@/types/listing';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useAuth } from '@/hooks/useAuth';
 
 function transformAdToListing(ad: any, profile?: { full_name?: string | null; avatar_url?: string | null } | null): Listing {
   const category = CATEGORIES.find(c => c.slug === ad.category) || CATEGORIES[0];
@@ -35,6 +37,8 @@ function transformAdToListing(ad: any, profile?: { full_name?: string | null; av
 
 export default function SellerProfile() {
   const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['sellerProfile', userId],
@@ -103,14 +107,14 @@ export default function SellerProfile() {
         ) : (
           <>
             {/* Seller header */}
-            <div className="flex items-center gap-4 mb-8 p-6 bg-card rounded-xl border border-border">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 p-6 bg-card rounded-xl border border-border">
               <Avatar className="h-16 w-16">
                 <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name || ''} />
                 <AvatarFallback className="text-xl bg-primary/10 text-primary">
                   <User className="h-6 w-6" />
                 </AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex-1">
                 <h1 className="text-2xl font-bold text-foreground">{profile.full_name || 'Utilisateur'}</h1>
                 <p className="text-sm text-muted-foreground">
                   Membre depuis {formatDistanceToNow(new Date(profile.created_at!), { locale: fr })}
@@ -134,6 +138,15 @@ export default function SellerProfile() {
                   </div>
                 )}
               </div>
+              {user && user.id !== userId && (
+                <Button
+                  onClick={() => navigate(`/contact?vendeur=${encodeURIComponent(profile.full_name || 'Vendeur')}`)}
+                  className="gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Contacter
+                </Button>
+              )}
             </div>
 
             {/* Listings grid */}
