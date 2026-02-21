@@ -5,7 +5,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ListingCard } from '@/components/ListingCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, User, ShoppingBag } from 'lucide-react';
+import { Loader2, User, ShoppingBag, Star } from 'lucide-react';
 import { CATEGORIES, type Listing, type BoostType } from '@/types/listing';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -65,6 +65,25 @@ export default function SellerProfile() {
     enabled: !!userId && !profileLoading,
   });
 
+  // Fetch all approved reviews for this seller
+  const { data: sellerReviews = [] } = useQuery({
+    queryKey: ['sellerReviews', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('seller_id', userId!)
+        .eq('status', 'approved');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
+  const averageRating = sellerReviews.length > 0
+    ? sellerReviews.reduce((sum, r) => sum + r.rating, 0) / sellerReviews.length
+    : 0;
+
   const isLoading = profileLoading || adsLoading;
 
   return (
@@ -100,6 +119,20 @@ export default function SellerProfile() {
                   <ShoppingBag className="h-4 w-4" />
                   {listings?.length || 0} annonce(s) en ligne
                 </div>
+                {sellerReviews.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <Star
+                          key={star}
+                          className={`h-4 w-4 ${star <= Math.round(averageRating) ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-medium text-foreground">{averageRating.toFixed(1)}</span>
+                    <span className="text-sm text-muted-foreground">({sellerReviews.length} avis)</span>
+                  </div>
+                )}
               </div>
             </div>
 
