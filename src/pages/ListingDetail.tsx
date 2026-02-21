@@ -216,16 +216,16 @@ export default function ListingDetail() {
               <div className="pt-4 border-t border-border space-y-3">
                 {/* Seller info */}
                 {listing.userName && (
-                  <div className="flex items-center gap-3 pb-3">
+                  <Link to={`/vendeur/${listing.userId}`} className="flex items-center gap-3 pb-3 hover:opacity-80 transition-opacity">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={listing.userAvatarUrl} alt={listing.userName} />
                       <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm text-muted-foreground">Publié par</p>
-                      <p className="font-medium text-foreground">{listing.userName}</p>
+                      <p className="font-medium text-primary hover:underline">{listing.userName}</p>
                     </div>
-                  </div>
+                  </Link>
                 )}
                 {showPhone && phoneNumber ? (
                   <a href={`tel:${phoneNumber}`}>

@@ -27,6 +27,7 @@ import AdminMessages from "./pages/AdminMessages";
 import AdminReviews from "./pages/AdminReviews";
 import MentionsLegales from "./pages/MentionsLegales";
 import CGU from "./pages/CGU";
+import SellerProfile from "./pages/SellerProfile";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/cgu" element={<CGU />} />
+            <Route path="/vendeur/:userId" element={<SellerProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
