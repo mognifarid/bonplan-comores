@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { Listing, CATEGORIES, BoostType } from '@/types/listing';
 
-function transformAdToListing(ad: any): Listing {
+function transformAdToListing(ad: any, profile?: { full_name?: string | null; avatar_url?: string | null } | null): Listing {
   const category = CATEGORIES.find(c => c.slug === ad.category) || CATEGORIES[0];
   
   return {
@@ -21,7 +21,8 @@ function transformAdToListing(ad: any): Listing {
     status: ad.status,
     boost: ad.boost as BoostType,
     userId: ad.user_id,
-    userName: '',
+    userName: profile?.full_name || '',
+    userAvatarUrl: profile?.avatar_url || undefined,
     views: ad.views || 0,
   };
 }
@@ -61,7 +62,22 @@ export function usePublicAds(filters?: {
       const { data, error } = await query;
       if (error) throw error;
 
-      return (data || []).map(transformAdToListing);
+      // Fetch seller profiles for all ads
+      const userIds = [...new Set((data || []).map(ad => ad.user_id).filter(Boolean))];
+      let profilesMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles_public')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds);
+        
+        if (profiles) {
+          profilesMap = Object.fromEntries(profiles.map(p => [p.user_id, p]));
+        }
+      }
+
+      return (data || []).map(ad => transformAdToListing(ad, profilesMap[ad.user_id!]));
     },
   });
 }
@@ -77,21 +93,19 @@ export function usePublicAd(id: string) {
         .single();
 
       if (error) throw error;
-      const listing = transformAdToListing(data);
 
       // Fetch seller profile
+      let profile = null;
       if (data.user_id) {
-        const { data: profile } = await supabase
+        const { data: p } = await supabase
           .from('profiles_public')
           .select('full_name, avatar_url')
           .eq('user_id', data.user_id)
           .maybeSingle();
-
-        if (profile) {
-          listing.userName = profile.full_name || '';
-          listing.userAvatarUrl = profile.avatar_url || undefined;
-        }
+        profile = p;
       }
+
+      const listing = transformAdToListing(data, profile);
 
       // Increment views
       supabase.rpc('increment_ad_views', { p_ad_id: id } as any).then(() => {});
@@ -117,7 +131,7 @@ export function useUserAds() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data || []).map(transformAdToListing);
+      return (data || []).map(ad => transformAdToListing(ad));
     },
     enabled: !!user,
   });
@@ -253,7 +267,7 @@ export function useSavedAds() {
       if (error) throw error;
       return (data || [])
         .filter(item => item.ads_public)
-        .map(item => transformAdToListing(item.ads_public));
+        .map(item => transformAdToListing(item.ads_public as any));
     },
     enabled: !!user,
   });
