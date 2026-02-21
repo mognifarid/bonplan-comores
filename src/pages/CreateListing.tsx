@@ -53,6 +53,25 @@ export default function CreateListing() {
   // Legal acceptance
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+  // Auto-fill phone from last ad
+  useEffect(() => {
+    if (!user) return;
+    const fetchLastPhone = async () => {
+      const { data } = await supabase
+        .from('ads')
+        .select('phone_number')
+        .eq('user_id', user.id)
+        .not('phone_number', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (data?.phone_number) {
+        setPhone(data.phone_number);
+      }
+    };
+    fetchLastPhone();
+  }, [user]);
+
   const boostOptions = [
   {
     type: 'vedette' as BoostType,
