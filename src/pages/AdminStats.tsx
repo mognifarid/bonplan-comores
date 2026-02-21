@@ -22,12 +22,20 @@ import { useIsAdmin } from '@/hooks/useAdmin';
 import { useStats } from '@/hooks/useStats';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 import {
   Loader2, Users, FileText, TrendingUp, Search, Check, X,
-  MessageSquare, Mail, Send, CheckSquare, Square,
+  MessageSquare, Mail, Send, CheckSquare, Square, Eye,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ResponsiveContainer } from 'recharts';
 
 interface UserProfile {
   user_id: string;
@@ -43,6 +51,48 @@ export default function AdminStats() {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
   const { data: stats } = useStats();
+
+  // Admin detailed stats
+  const { data: adminStats } = useQuery({
+    queryKey: ['adminStats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_admin_stats');
+      if (error) throw error;
+      return data as {
+        totalViews: number;
+        adsPerDay: { date: string; count: number }[] | null;
+        usersPerDay: { date: string; count: number }[] | null;
+        adsByCategory: { category: string; count: number }[] | null;
+        adsByIsland: { island: string; count: number }[] | null;
+        totalAds: number;
+        approvedAds: number;
+        pendingAds: number;
+        rejectedAds: number;
+        totalUsers: number;
+        boostedAds: number;
+      };
+    },
+    enabled: !!isAdmin,
+  });
+
+  const viewsChartConfig: ChartConfig = {
+    count: { label: 'Vues', color: 'hsl(var(--primary))' },
+  };
+
+  const usersChartConfig: ChartConfig = {
+    count: { label: 'Inscriptions', color: 'hsl(var(--chart-2, 142 71% 45%))' },
+  };
+
+  // Build monthly views data from adsPerDay
+  const monthlyData = (() => {
+    if (!adminStats?.adsPerDay) return [];
+    const months: Record<string, number> = {};
+    adminStats.adsPerDay.forEach(d => {
+      const month = format(new Date(d.date), 'MMM yyyy', { locale: fr });
+      months[month] = (months[month] || 0) + d.count;
+    });
+    return Object.entries(months).map(([month, count]) => ({ month, count }));
+  })();
   const { toast } = useToast();
 
   // Users tab state
@@ -201,7 +251,7 @@ export default function AdminStats() {
 
           {/* Stats Tab */}
           <TabsContent value="stats">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Annonces actives</CardTitle>
@@ -224,11 +274,74 @@ export default function AdminStats() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Vues totales</CardTitle>
+                  <Eye className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{adminStats?.totalViews?.toLocaleString() ?? 0}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Îles couvertes</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">3</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Daily ads chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Annonces créées (30 derniers jours)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {adminStats?.adsPerDay?.length ? (
+                    <ChartContainer config={viewsChartConfig} className="h-[250px] w-full">
+                      <BarChart data={adminStats.adsPerDay.map(d => ({
+                        ...d,
+                        date: format(new Date(d.date), 'dd/MM', { locale: fr }),
+                      }))}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
+                        <XAxis dataKey="date" className="text-xs" />
+                        <YAxis allowDecimals={false} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ChartContainer>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-8">Aucune donnée disponible</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Monthly users chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Inscriptions mensuelles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {adminStats?.usersPerDay?.length ? (
+                    <ChartContainer config={usersChartConfig} className="h-[250px] w-full">
+                      <LineChart data={adminStats.usersPerDay.map(d => ({
+                        ...d,
+                        date: format(new Date(d.date), 'dd/MM', { locale: fr }),
+                      }))}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
+                        <XAxis dataKey="date" className="text-xs" />
+                        <YAxis allowDecimals={false} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line type="monotone" dataKey="count" stroke="hsl(var(--chart-2, 142 71% 45%))" strokeWidth={2} dot={{ r: 3 }} />
+                      </LineChart>
+                    </ChartContainer>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-8">Aucune donnée disponible</p>
+                  )}
                 </CardContent>
               </Card>
             </div>
