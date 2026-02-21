@@ -12,7 +12,9 @@ import { useCreateAd } from '@/hooks/useAds';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, X, ImagePlus, Star, Zap, ArrowUp, Check, MapPin, Tag, FileText, Phone, Camera } from 'lucide-react';
+import { Loader2, X, ImagePlus, Star, Zap, ArrowUp, Check, MapPin, Tag, FileText, Phone, Camera, ShieldCheck } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Link } from 'react-router-dom';
 import { BoostType, BOOST_PRICES } from '@/hooks/useBoost';
 
 export default function CreateListing() {
@@ -47,6 +49,9 @@ export default function CreateListing() {
 
   // Real estate specific
   const [roomCount, setRoomCount] = useState('');
+
+  // Legal acceptance
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const boostOptions = [
     {
@@ -476,12 +481,39 @@ export default function CreateListing() {
             </div>
           </section>
 
+          {/* Section: Conditions */}
+          <section className="rounded-2xl border border-border bg-card p-6 shadow-card space-y-4">
+            <div className="flex items-center gap-2 text-primary mb-1">
+              <ShieldCheck className="h-5 w-5" />
+              <h2 className="font-semibold text-lg">Conditions</h2>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="accept-terms"
+                checked={acceptedTerms}
+                onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="accept-terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                J'accepte les{' '}
+                <Link to="/mentions-legales" target="_blank" className="text-primary underline hover:text-primary/80">
+                  Mentions Légales
+                </Link>{' '}
+                et les{' '}
+                <Link to="/cgu" target="_blank" className="text-primary underline hover:text-primary/80">
+                  Conditions Générales d'Utilisation
+                </Link>{' '}
+                de Bon Plan Comores. *
+              </label>
+            </div>
+          </section>
+
           {/* Submit */}
           <Button
             type="submit"
             className="w-full h-12 text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
             size="lg"
-            disabled={createAd.isPending || !category || !island}
+            disabled={createAd.isPending || !category || !island || !acceptedTerms}
           >
             {createAd.isPending ? (
               <>

@@ -288,7 +288,7 @@ export default function AdminStats() {
                             )}
                           </button>
                         </th>
-                        <th className="p-3 text-left text-sm font-medium text-muted-foreground">Utilisateur</th>
+                        <th className="p-3 text-left text-sm font-medium text-muted-foreground">Nom complet</th>
                         <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden sm:table-cell">Téléphone</th>
                         <th className="p-3 text-left text-sm font-medium text-muted-foreground hidden md:table-cell">Inscrit le</th>
                       </tr>
