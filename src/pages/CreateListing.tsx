@@ -57,14 +57,14 @@ export default function CreateListing() {
   useEffect(() => {
     if (!user) return;
     const fetchLastPhone = async () => {
-      const { data } = await supabase
-        .from('ads')
-        .select('phone_number')
-        .eq('user_id', user.id)
-        .not('phone_number', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      const { data } = await supabase.
+      from('ads').
+      select('phone_number').
+      eq('user_id', user.id).
+      not('phone_number', 'is', null).
+      order('created_at', { ascending: false }).
+      limit(1).
+      single();
       if (data?.phone_number) {
         setPhone(data.phone_number);
       }
@@ -445,7 +445,7 @@ export default function CreateListing() {
           <section className="rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 space-y-4">
             <div className="flex items-center gap-2 mb-1">
               <Star className="h-5 w-5 text-amber-500" />
-              <h2 className="font-semibold text-lg text-foreground">Boostez votre annonce</h2>
+              <h2 className="font-semibold text-lg text-primary-foreground">Boostez votre annonce</h2>
             </div>
             <p className="text-sm text-muted-foreground -mt-2">
               Optionnel : augmentez la visibilité de votre annonce dès sa publication
