@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Eye, Star, Zap, ArrowUp } from 'lucide-react';
+import { MapPin, Clock, Eye, Star, Zap, ArrowUp, User } from 'lucide-react';
 import { Listing, ISLANDS } from '@/types/listing';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface ListingCardProps {
   listing: Listing;
@@ -47,6 +48,17 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
       <div className="p-4 space-y-3">
         <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">{listing.title}</h3>
         <p className="text-xl font-bold text-primary">{formatPrice(listing.price)}</p>
+        
+        {listing.userName && (
+          <div className="flex items-center gap-2">
+            <Avatar className="h-5 w-5">
+              <AvatarImage src={listing.userAvatarUrl} alt={listing.userName} />
+              <AvatarFallback className="text-[10px]"><User className="h-3 w-3" /></AvatarFallback>
+            </Avatar>
+            <span className="text-sm text-muted-foreground truncate">{listing.userName}</span>
+          </div>
+        )}
+
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{listing.city}, {islandLabel}</div>
           <div className="flex items-center gap-3">
