@@ -22,31 +22,31 @@ export function Header() {
 
   // Fetch unread message count
   useEffect(() => {
-    if (!user) { setUnreadCount(0); return; }
+    if (!user) {setUnreadCount(0);return;}
 
     const fetchUnread = async () => {
       if (isAdmin) {
         // Admin: count unread messages from users (not sent by admin)
         const { data: convs } = await supabase.from('conversations').select('id');
         if (convs?.length) {
-          const { count } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .in('conversation_id', convs.map(c => c.id))
-            .eq('is_read', false)
-            .neq('sender_id', user.id);
+          const { count } = await supabase.
+          from('messages').
+          select('*', { count: 'exact', head: true }).
+          in('conversation_id', convs.map((c) => c.id)).
+          eq('is_read', false).
+          neq('sender_id', user.id);
           setUnreadCount(count || 0);
         }
       } else {
         // User: count unread messages not sent by themselves
         const { data: convs } = await supabase.from('conversations').select('id').eq('user_id', user.id);
         if (convs?.length) {
-          const { count } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .in('conversation_id', convs.map(c => c.id))
-            .eq('is_read', false)
-            .neq('sender_id', user.id);
+          const { count } = await supabase.
+          from('messages').
+          select('*', { count: 'exact', head: true }).
+          in('conversation_id', convs.map((c) => c.id)).
+          eq('is_read', false).
+          neq('sender_id', user.id);
           setUnreadCount(count || 0);
         }
       }
@@ -55,22 +55,22 @@ export function Header() {
     fetchUnread();
 
     // Listen for new messages in realtime
-    const channel = supabase
-      .channel('header-unread')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
-        fetchUnread();
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => {
-        fetchUnread();
-      })
-      .subscribe();
+    const channel = supabase.
+    channel('header-unread').
+    on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+      fetchUnread();
+    }).
+    on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => {
+      fetchUnread();
+    }).
+    subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {supabase.removeChannel(channel);};
   }, [user, isAdmin]);
 
   const getInitials = () => {
     if (profile?.full_name) {
-      return profile.full_name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2);
+      return profile.full_name.split(' ').map((n) => n.charAt(0)).join('').toUpperCase().slice(0, 2);
     }
     return user?.email?.charAt(0).toUpperCase() || 'U';
   };
@@ -91,14 +91,14 @@ export function Header() {
     navigate('/');
   };
 
-  const messageBadge = unreadCount > 0 ? (
-    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+  const messageBadge = unreadCount > 0 ?
+  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
       {unreadCount > 99 ? '99+' : unreadCount}
-    </span>
-  ) : null;
+    </span> :
+  null;
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
+    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border bg-emerald-50">
       <div className="container">
         <div className="flex items-center justify-between h-16 gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -119,8 +119,8 @@ export function Header() {
                 placeholder="Rechercher une annonce..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 h-11 bg-muted/50 border-transparent focus:border-primary"
-              />
+                className="pl-10 pr-4 h-11 bg-muted/50 border-transparent focus:border-primary" />
+
             </div>
           </form>
 
@@ -128,13 +128,13 @@ export function Header() {
             <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate('/alertes')}>
               <Bell className="h-4 w-4" />
             </Button>
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Button variant="ghost" size="sm" className="gap-2 text-primary" onClick={() => navigate('/admin')}>
+            {user ?
+            <>
+                {isAdmin &&
+              <Button variant="ghost" size="sm" className="gap-2 text-primary" onClick={() => navigate('/admin')}>
                     <Shield className="h-4 w-4" />
                   </Button>
-                )}
+              }
                 <Button variant="ghost" size="sm" onClick={() => navigate('/mes-annonces')}>
                   <User className="h-4 w-4" />
                 </Button>
@@ -151,13 +151,13 @@ export function Header() {
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
                 </Button>
-              </>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+              </> :
+
+            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
                 <User className="h-4 w-4" />
                 Connexion
               </Button>
-            )}
+            }
             <Link to="/deposer">
               <Button variant="hero" size="default" className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -184,43 +184,43 @@ export function Header() {
         </form>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-card">
+      {isMenuOpen &&
+      <div className="md:hidden border-t border-border bg-card">
           <nav className="container py-4 space-y-2">
-            {user ? (
-              <>
-                {isAdmin && (
-                  <button onClick={() => { navigate('/admin'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left text-primary">
+            {user ?
+          <>
+                {isAdmin &&
+            <button onClick={() => {navigate('/admin');setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left text-primary">
                     <Shield className="h-5 w-5" />Admin
                   </button>
-                )}
-                <button onClick={() => { navigate('/mes-annonces'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
+            }
+                <button onClick={() => {navigate('/mes-annonces');setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <User className="h-5 w-5 text-muted-foreground" />Mes annonces
                 </button>
-                <button onClick={() => { navigate(isAdmin ? '/admin/messages' : '/messages'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left relative">
+                <button onClick={() => {navigate(isAdmin ? '/admin/messages' : '/messages');setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left relative">
                   <MessageSquare className="h-5 w-5 text-muted-foreground" />
                   Messages
-                  {unreadCount > 0 && (
-                    <span className="ml-auto min-w-[20px] h-[20px] rounded-full bg-destructive text-destructive-foreground text-[11px] font-bold flex items-center justify-center px-1.5">
+                  {unreadCount > 0 &&
+              <span className="ml-auto min-w-[20px] h-[20px] rounded-full bg-destructive text-destructive-foreground text-[11px] font-bold flex items-center justify-center px-1.5">
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
-                  )}
+              }
                 </button>
-                <button onClick={() => { navigate('/profil'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
+                <button onClick={() => {navigate('/profil');setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{getInitials()}</AvatarFallback></Avatar>Mon profil
                 </button>
-                <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
+                <button onClick={() => {handleLogout();setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <LogOut className="h-5 w-5 text-muted-foreground" />Déconnexion
                 </button>
-              </>
-            ) : (
-              <button onClick={() => { navigate('/auth'); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
+              </> :
+
+          <button onClick={() => {navigate('/auth');setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                 <User className="h-5 w-5 text-muted-foreground" />Connexion
               </button>
-            )}
+          }
           </nav>
         </div>
-      )}
-    </header>
-  );
+      }
+    </header>);
+
 }
