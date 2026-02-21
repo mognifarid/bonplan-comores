@@ -196,7 +196,7 @@ export default function CreateListing() {
       <main className="flex-1 container py-8 max-w-2xl animate-slide-up">
         {/* Page Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-[sidebar-accent-foreground] bg-sky-200">
             Déposer une annonce
           </h1>
           <p className="text-muted-foreground mt-2">
