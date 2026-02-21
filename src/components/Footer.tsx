@@ -4,7 +4,7 @@ import { Mail } from 'lucide-react';
 export function Footer() {
   return (
     <footer className="bg-card border-t border-border mt-16">
-      <div className="container py-12">
+      <div className="container py-12 bg-[sidebar-primary-foreground] bg-sky-50">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
@@ -67,6 +67,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 }
