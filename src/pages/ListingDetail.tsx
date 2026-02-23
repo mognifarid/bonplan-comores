@@ -12,7 +12,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
   MapPin, Clock, Eye, Phone, Heart, Share2, Flag, 
-  ChevronLeft, ChevronRight, Star, Zap, ArrowUp, Loader2, User
+  ChevronLeft, ChevronRight, Star, Zap, ArrowUp, Loader2, User, MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -114,6 +114,49 @@ export default function ListingDetail() {
       }
     } catch {
       toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!user) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous pour envoyer un message.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+    if (user.id === listing.userId) {
+      toast({ title: "Info", description: "Vous ne pouvez pas vous envoyer un message à vous-même." });
+      return;
+    }
+    try {
+      // Create conversation with listing context
+      const { data: conv, error: convError } = await supabase
+        .from('conversations')
+        .insert({
+          user_id: user.id,
+          subject: `À propos de : ${listing.title}`,
+        })
+        .select()
+        .single();
+      if (convError) throw convError;
+
+      // Send first message with listing info
+      const listingUrl = `${window.location.origin}/annonce/${listing.id}`;
+      const messageContent = `📦 Annonce : ${listing.title}\n💰 Prix : ${formatPrice(listing.price)}\n📍 ${listing.city}, ${islandLabel}\n🔗 ${listingUrl}\n\nBonjour, je suis intéressé(e) par votre annonce.`;
+      
+      await supabase.from('messages').insert({
+        conversation_id: conv.id,
+        sender_id: user.id,
+        content: messageContent,
+      });
+
+      toast({ title: "Conversation créée" });
+      navigate('/messages');
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de créer la conversation.", variant: "destructive" });
     }
   };
 
@@ -240,6 +283,11 @@ export default function ListingDetail() {
                     {user ? 'Voir le numéro' : 'Connectez-vous pour voir le numéro'}
                   </Button>
                 )}
+
+                <Button onClick={handleSendMessage} variant="outline" className="w-full gap-2" size="lg">
+                  <MessageSquare className="h-4 w-4" />
+                  Envoyer un message
+                </Button>
 
                 <div className="flex gap-2">
                   <Button variant="outline" className="flex-1 gap-2" onClick={handleSaveToggle}>
