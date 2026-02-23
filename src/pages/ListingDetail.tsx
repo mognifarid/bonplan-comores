@@ -270,24 +270,40 @@ export default function ListingDetail() {
                     </div>
                   </Link>
                 )}
-                {showPhone && phoneNumber ? (
-                  <a href={`tel:${phoneNumber}`}>
-                    <Button className="w-full gap-2" size="lg">
-                      <Phone className="h-4 w-4" />
-                      {phoneNumber}
-                    </Button>
-                  </a>
+              {showPhone && phoneNumber ? (
+                  <div className="space-y-2">
+                    <p className="text-center font-semibold text-lg text-foreground">{phoneNumber}</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      <Button onClick={handleSendMessage} variant="outline" className="w-full gap-2" size="lg">
+                        <MessageSquare className="h-4 w-4" />
+                        Envoyer un message
+                      </Button>
+                      <a href={`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
+                        <Button variant="success" className="w-full gap-2" size="lg">
+                          <MessageSquare className="h-4 w-4" />
+                          Message WhatsApp
+                        </Button>
+                      </a>
+                      <a href={`tel:${phoneNumber}`}>
+                        <Button className="w-full gap-2" size="lg">
+                          <Phone className="h-4 w-4" />
+                          Appeler
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
                 ) : (
-                  <Button onClick={handleShowPhone} disabled={loadingPhone} className="w-full gap-2" size="lg">
-                    {loadingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
-                    {user ? 'Voir le numéro' : 'Connectez-vous pour voir le numéro'}
-                  </Button>
+                  <>
+                    <Button onClick={handleShowPhone} disabled={loadingPhone} className="w-full gap-2" size="lg">
+                      {loadingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
+                      {user ? 'Voir le numéro' : 'Connectez-vous pour voir le numéro'}
+                    </Button>
+                    <Button onClick={handleSendMessage} variant="outline" className="w-full gap-2" size="lg">
+                      <MessageSquare className="h-4 w-4" />
+                      Envoyer un message
+                    </Button>
+                  </>
                 )}
-
-                <Button onClick={handleSendMessage} variant="outline" className="w-full gap-2" size="lg">
-                  <MessageSquare className="h-4 w-4" />
-                  Envoyer un message
-                </Button>
 
                 <div className="flex gap-2">
                   <Button variant="outline" className="flex-1 gap-2" onClick={handleSaveToggle}>
