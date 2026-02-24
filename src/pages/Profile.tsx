@@ -11,7 +11,8 @@ import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Camera, Lock } from 'lucide-react';
+import { Loader2, Camera, Lock, AlertCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -130,6 +131,24 @@ export default function Profile() {
       
       <main className="flex-1 container py-8 max-w-2xl space-y-6">
         <h1 className="text-3xl font-bold text-foreground">Mon profil</h1>
+
+        {/* Badge profil incomplet */}
+        {profile && (!profile.full_name || !profile.phone || !profile.birth_date) && (
+          <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+            <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-destructive">Profil incomplet</p>
+              <p className="text-xs text-muted-foreground">
+                Complétez vos informations : {[
+                  !profile.full_name && 'nom complet',
+                  !profile.phone && 'téléphone',
+                  !profile.birth_date && 'date de naissance',
+                ].filter(Boolean).join(', ')}
+              </p>
+            </div>
+            <Badge variant="destructive">À compléter</Badge>
+          </div>
+        )}
 
         {/* Avatar Section */}
         <Card>
