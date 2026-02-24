@@ -142,11 +142,14 @@ export function Header() {
                   <MessageSquare className="h-4 w-4" />
                   {messageBadge}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/profil')}>
+          <Button variant="ghost" size="sm" className="relative" onClick={() => navigate('/profil')}>
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">{getInitials()}</AvatarFallback>
                   </Avatar>
+                  {profile && (!profile.full_name || !profile.phone || !profile.birth_date) && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-destructive border-2 border-background" />
+                  )}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
@@ -207,7 +210,16 @@ export function Header() {
               }
                 </button>
                 <button onClick={() => {navigate('/profil');setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
-                  <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{getInitials()}</AvatarFallback></Avatar>Mon profil
+                  <div className="relative">
+                    <Avatar className="h-6 w-6"><AvatarFallback className="text-xs">{getInitials()}</AvatarFallback></Avatar>
+                    {profile && (!profile.full_name || !profile.phone || !profile.birth_date) && (
+                      <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-destructive border-2 border-background" />
+                    )}
+                  </div>
+                  Mon profil
+                  {profile && (!profile.full_name || !profile.phone || !profile.birth_date) && (
+                    <span className="ml-auto text-[10px] font-bold text-destructive">À compléter</span>
+                  )}
                 </button>
                 <button onClick={() => {handleLogout();setIsMenuOpen(false);}} className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted w-full text-left">
                   <LogOut className="h-5 w-5 text-muted-foreground" />Déconnexion
