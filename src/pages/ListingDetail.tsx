@@ -132,11 +132,12 @@ export default function ListingDetail() {
       return;
     }
     try {
-      // Create conversation with listing context
+      // Create conversation with listing context, linking both buyer and seller
       const { data: conv, error: convError } = await supabase
         .from('conversations')
         .insert({
           user_id: user.id,
+          recipient_id: listing.userId,
           subject: `À propos de : ${listing.title}`,
         })
         .select()
