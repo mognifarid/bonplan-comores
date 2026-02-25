@@ -39,7 +39,7 @@ export function Header() {
         }
       } else {
         // User: count unread messages not sent by themselves
-        const { data: convs } = await supabase.from('conversations').select('id').eq('user_id', user.id);
+        const { data: convs } = await supabase.from('conversations').select('id').or(`user_id.eq.${user.id},recipient_id.eq.${user.id}`);
         if (convs?.length) {
           const { count } = await supabase.
           from('messages').
