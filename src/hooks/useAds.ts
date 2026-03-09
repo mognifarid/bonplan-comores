@@ -252,6 +252,26 @@ export function useDeleteAd() {
   });
 }
 
+export function useMarkAsSold() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, isSold }: { id: string; isSold: boolean }) => {
+      const { error } = await supabase
+        .from('ads')
+        .update({ is_sold: isSold } as any)
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userAds'] });
+      queryClient.invalidateQueries({ queryKey: ['publicAds'] });
+      queryClient.invalidateQueries({ queryKey: ['publicAd'] });
+    },
+  });
+}
+
 export function useSavedAds() {
   const { user } = useAuth();
 

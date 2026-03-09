@@ -30,6 +30,7 @@ export interface Listing {
   userPhone?: string;
   userAvatarUrl?: string;
   views: number;
+  isSold: boolean;
 }
 
 export const ISLANDS: { value: Island; label: string; cities: string[] }[] = [
