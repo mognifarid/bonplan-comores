@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ListingCard } from '@/components/ListingCard';
 import { BoostDialog } from '@/components/BoostDialog';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserAds, useSavedAds, useDeleteAd } from '@/hooks/useAds';
+import { useUserAds, useSavedAds, useDeleteAd, useMarkAsSold } from '@/hooks/useAds';
 import { useVerifyPayment } from '@/hooks/useBoost';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Trash2, Edit, Eye, Clock, CheckCircle, XCircle, Star, Zap, ArrowUp, Heart, Rocket } from 'lucide-react';
