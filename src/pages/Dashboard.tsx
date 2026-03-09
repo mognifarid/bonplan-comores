@@ -24,6 +24,7 @@ export default function Dashboard() {
   const { data: userAds = [], isLoading: adsLoading } = useUserAds();
   const { data: savedAds = [], isLoading: savedLoading } = useSavedAds();
   const deleteAd = useDeleteAd();
+  const markAsSold = useMarkAsSold();
   const verifyPayment = useVerifyPayment();
 
   const [activeTab, setActiveTab] = useState('mes-annonces');
