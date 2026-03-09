@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { ListingCard } from '@/components/ListingCard';
 import { BoostDialog } from '@/components/BoostDialog';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserAds, useSavedAds, useDeleteAd } from '@/hooks/useAds';
+import { useUserAds, useSavedAds, useDeleteAd, useMarkAsSold } from '@/hooks/useAds';
 import { useVerifyPayment } from '@/hooks/useBoost';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2, Edit, Eye, Clock, CheckCircle, XCircle, Star, Zap, ArrowUp, Heart, Rocket } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit, Eye, Clock, CheckCircle, XCircle, Star, Zap, ArrowUp, Heart, Rocket, PackageCheck } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Link } from 'react-router-dom';
 
@@ -24,6 +24,7 @@ export default function Dashboard() {
   const { data: userAds = [], isLoading: adsLoading } = useUserAds();
   const { data: savedAds = [], isLoading: savedLoading } = useSavedAds();
   const deleteAd = useDeleteAd();
+  const markAsSold = useMarkAsSold();
   const verifyPayment = useVerifyPayment();
 
   const [activeTab, setActiveTab] = useState('mes-annonces');
@@ -70,6 +71,15 @@ export default function Dashboard() {
   const handleBoostClick = (adId: string) => {
     setSelectedAdForBoost(adId);
     setBoostDialogOpen(true);
+  };
+
+  const handleToggleSold = async (id: string, currentlySold: boolean) => {
+    try {
+      await markAsSold.mutateAsync({ id, isSold: !currentlySold });
+      toast({ title: currentlySold ? "Annonce remise en vente" : "Annonce marquée comme vendue ✅" });
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de modifier le statut.", variant: "destructive" });
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -157,6 +167,12 @@ export default function Dashboard() {
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
+                              {ad.isSold && (
+                                <Badge className="gap-1 bg-green-600 hover:bg-green-700 text-white">
+                                  <PackageCheck className="h-3 w-3" />
+                                  Vendu
+                                </Badge>
+                              )}
                               {getStatusIcon(ad.status)}
                               <Badge variant={ad.status === 'approved' ? 'default' : ad.status === 'rejected' ? 'destructive' : 'secondary'}>
                                 {getStatusLabel(ad.status)}
@@ -185,7 +201,7 @@ export default function Dashboard() {
                                 Modifier
                               </Button>
                             </Link>
-                            {ad.status === 'approved' && !ad.boost && (
+                            {ad.status === 'approved' && !ad.boost && !ad.isSold && (
                               <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -194,6 +210,17 @@ export default function Dashboard() {
                               >
                                 <Rocket className="h-3 w-3" />
                                 Booster
+                              </Button>
+                            )}
+                            {ad.status === 'approved' && (
+                              <Button
+                                variant={ad.isSold ? "outline" : "secondary"}
+                                size="sm"
+                                className="gap-1"
+                                onClick={() => handleToggleSold(ad.id, ad.isSold)}
+                              >
+                                <PackageCheck className="h-3 w-3" />
+                                {ad.isSold ? 'Remettre en vente' : 'Marquer vendu'}
                               </Button>
                             )}
                             <AlertDialog>

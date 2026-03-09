@@ -24,6 +24,7 @@ function transformAdToListing(ad: any, profile?: { full_name?: string | null; av
     userName: profile?.full_name || '',
     userAvatarUrl: profile?.avatar_url || undefined,
     views: ad.views || 0,
+    isSold: ad.is_sold || false,
   };
 }
 
@@ -247,6 +248,26 @@ export function useDeleteAd() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userAds'] });
       queryClient.invalidateQueries({ queryKey: ['publicAds'] });
+    },
+  });
+}
+
+export function useMarkAsSold() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, isSold }: { id: string; isSold: boolean }) => {
+      const { error } = await supabase
+        .from('ads')
+        .update({ is_sold: isSold } as any)
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userAds'] });
+      queryClient.invalidateQueries({ queryKey: ['publicAds'] });
+      queryClient.invalidateQueries({ queryKey: ['publicAd'] });
     },
   });
 }
