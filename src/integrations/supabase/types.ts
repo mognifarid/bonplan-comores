@@ -25,6 +25,7 @@ export type Database = {
           id: string
           images: string[] | null
           is_premium: boolean
+          is_sold: boolean
           island: string
           phone_number: string | null
           price: number
@@ -52,6 +53,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_premium?: boolean
+          is_sold?: boolean
           island: string
           phone_number?: string | null
           price?: number
@@ -79,6 +81,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_premium?: boolean
+          is_sold?: boolean
           island?: string
           phone_number?: string | null
           price?: number
@@ -395,6 +398,7 @@ export type Database = {
           id: string | null
           images: string[] | null
           is_premium: boolean | null
+          is_sold: boolean | null
           island: string | null
           price: number | null
           room_count: string | null
@@ -418,6 +422,7 @@ export type Database = {
           id?: string | null
           images?: string[] | null
           is_premium?: boolean | null
+          is_sold?: boolean | null
           island?: string | null
           price?: number | null
           room_count?: string | null
@@ -441,6 +446,7 @@ export type Database = {
           id?: string | null
           images?: string[] | null
           is_premium?: boolean | null
+          is_sold?: boolean | null
           island?: string | null
           price?: number | null
           room_count?: string | null
