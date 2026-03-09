@@ -167,6 +167,12 @@ export default function Dashboard() {
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
+                              {ad.isSold && (
+                                <Badge className="gap-1 bg-green-600 hover:bg-green-700 text-white">
+                                  <PackageCheck className="h-3 w-3" />
+                                  Vendu
+                                </Badge>
+                              )}
                               {getStatusIcon(ad.status)}
                               <Badge variant={ad.status === 'approved' ? 'default' : ad.status === 'rejected' ? 'destructive' : 'secondary'}>
                                 {getStatusLabel(ad.status)}
