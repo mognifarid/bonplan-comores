@@ -24,6 +24,7 @@ function transformAdToListing(ad: any, profile?: { full_name?: string | null; av
     userName: profile?.full_name || '',
     userAvatarUrl: profile?.avatar_url || undefined,
     views: ad.views || 0,
+    isSold: ad.is_sold || false,
   };
 }
 
