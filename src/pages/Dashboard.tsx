@@ -73,6 +73,15 @@ export default function Dashboard() {
     setBoostDialogOpen(true);
   };
 
+  const handleToggleSold = async (id: string, currentlySold: boolean) => {
+    try {
+      await markAsSold.mutateAsync({ id, isSold: !currentlySold });
+      toast({ title: currentlySold ? "Annonce remise en vente" : "Annonce marquée comme vendue ✅" });
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de modifier le statut.", variant: "destructive" });
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="h-4 w-4 text-warning" />;
