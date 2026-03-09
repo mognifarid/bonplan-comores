@@ -201,7 +201,7 @@ export default function Dashboard() {
                                 Modifier
                               </Button>
                             </Link>
-                            {ad.status === 'approved' && !ad.boost && (
+                            {ad.status === 'approved' && !ad.boost && !ad.isSold && (
                               <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -210,6 +210,17 @@ export default function Dashboard() {
                               >
                                 <Rocket className="h-3 w-3" />
                                 Booster
+                              </Button>
+                            )}
+                            {ad.status === 'approved' && (
+                              <Button
+                                variant={ad.isSold ? "outline" : "secondary"}
+                                size="sm"
+                                className="gap-1"
+                                onClick={() => handleToggleSold(ad.id, ad.isSold)}
+                              >
+                                <PackageCheck className="h-3 w-3" />
+                                {ad.isSold ? 'Remettre en vente' : 'Marquer vendu'}
                               </Button>
                             )}
                             <AlertDialog>
