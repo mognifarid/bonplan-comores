@@ -253,10 +253,8 @@ export default function Messages() {
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                   <div>
-                    <p className="font-medium text-sm text-foreground">{selectedConv.subject}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedConv.status === 'open' ? 'Conversation ouverte' : 'Conversation fermée'}
-                    </p>
+                    <p className="font-medium text-sm text-foreground">{selectedConv.otherUserName || 'Utilisateur'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{selectedConv.subject}</p>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
