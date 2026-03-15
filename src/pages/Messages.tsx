@@ -22,8 +22,10 @@ interface Conversation {
   created_at: string;
   updated_at: string;
   user_id: string;
+  recipient_id: string | null;
   last_message?: string;
   unread_count?: number;
+  otherUserName?: string;
 }
 
 interface Message {
