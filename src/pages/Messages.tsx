@@ -22,8 +22,10 @@ interface Conversation {
   created_at: string;
   updated_at: string;
   user_id: string;
+  recipient_id: string | null;
   last_message?: string;
   unread_count?: number;
+  otherUserName?: string;
 }
 
 interface Message {
@@ -85,7 +87,22 @@ export default function Messages() {
       .from('conversations')
       .select('*')
       .order('updated_at', { ascending: false });
-    if (!error && data) setConversations(data);
+    if (!error && data && user) {
+      // Fetch other participants' names
+      const otherUserIds = [...new Set(data.map(c => c.user_id === user.id ? c.recipient_id : c.user_id).filter(Boolean))] as string[];
+      const profilesMap: Record<string, string> = {};
+      if (otherUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles_public')
+          .select('user_id, full_name')
+          .in('user_id', otherUserIds);
+        profiles?.forEach(p => { if (p.user_id && p.full_name) profilesMap[p.user_id] = p.full_name; });
+      }
+      setConversations(data.map(c => {
+        const otherId = c.user_id === user.id ? c.recipient_id : c.user_id;
+        return { ...c, otherUserName: otherId ? profilesMap[otherId] || 'Utilisateur' : 'Utilisateur' };
+      }));
+    }
     setLoading(false);
   };
 
@@ -189,7 +206,8 @@ export default function Messages() {
                         selectedConversation === conv.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
                       }`}
                     >
-                      <p className="font-medium text-sm text-foreground truncate pr-8">{conv.subject}</p>
+                      <p className="font-medium text-sm text-foreground truncate pr-8">{conv.otherUserName || 'Utilisateur'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{conv.subject}</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
                       </p>
@@ -235,10 +253,8 @@ export default function Messages() {
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                   <div>
-                    <p className="font-medium text-sm text-foreground">{selectedConv.subject}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedConv.status === 'open' ? 'Conversation ouverte' : 'Conversation fermée'}
-                    </p>
+                    <p className="font-medium text-sm text-foreground">{selectedConv.otherUserName || 'Utilisateur'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{selectedConv.subject}</p>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
