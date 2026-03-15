@@ -199,6 +199,11 @@ export default function ListingDetail() {
               {listing.boost && (
                 <div className="absolute top-4 left-4">{getBoostBadge()}</div>
               )}
+              {listing.isSold && (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <Badge className="bg-destructive text-destructive-foreground border-0 text-lg px-4 py-2">Vendu</Badge>
+                </div>
+              )}
               {listing.images.length > 1 && (
                 <>
                   <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-card/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-card transition-colors">
@@ -247,7 +252,12 @@ export default function ListingDetail() {
           {/* Sidebar */}
           <div className="space-y-4">
             <div className="bg-card rounded-xl p-6 border border-border space-y-4">
-              <Badge variant="secondary">{listing.category.icon} {listing.category.name}</Badge>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">{listing.category.icon} {listing.category.name}</Badge>
+                {listing.isSold && (
+                  <Badge className="bg-destructive text-destructive-foreground border-0 gap-1">Vendu</Badge>
+                )}
+              </div>
               <h1 className="text-2xl font-bold text-foreground">{listing.title}</h1>
               <p className="text-3xl font-bold text-primary">{formatPrice(listing.price)}</p>
 
