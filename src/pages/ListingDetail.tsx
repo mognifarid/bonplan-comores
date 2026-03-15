@@ -132,19 +132,34 @@ export default function ListingDetail() {
       return;
     }
     try {
-      // Create conversation with listing context, linking both buyer and seller
+      const expectedSubject = `À propos de : ${listing.title}`;
+
+      // Check for existing conversation about this ad between these two users
+      const { data: existing } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('subject', expectedSubject)
+        .or(`and(user_id.eq.${user.id},recipient_id.eq.${listing.userId}),and(user_id.eq.${listing.userId},recipient_id.eq.${user.id})`)
+        .limit(1)
+        .maybeSingle();
+
+      if (existing) {
+        toast({ title: "Conversation existante", description: "Vous avez déjà une conversation pour cette annonce." });
+        navigate('/messages');
+        return;
+      }
+
       const { data: conv, error: convError } = await supabase
         .from('conversations')
         .insert({
           user_id: user.id,
           recipient_id: listing.userId,
-          subject: `À propos de : ${listing.title}`,
+          subject: expectedSubject,
         })
         .select()
         .single();
       if (convError) throw convError;
 
-      // Send first message with listing info
       const listingUrl = `${window.location.origin}/annonce/${listing.id}`;
       const messageContent = `📦 Annonce : ${listing.title}\n💰 Prix : ${formatPrice(listing.price)}\n📍 ${listing.city}, ${islandLabel}\n🔗 ${listingUrl}\n\nBonjour, je suis intéressé(e) par votre annonce.`;
       
