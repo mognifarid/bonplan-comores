@@ -206,7 +206,8 @@ export default function Messages() {
                         selectedConversation === conv.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
                       }`}
                     >
-                      <p className="font-medium text-sm text-foreground truncate pr-8">{conv.subject}</p>
+                      <p className="font-medium text-sm text-foreground truncate pr-8">{conv.otherUserName || 'Utilisateur'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{conv.subject}</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
                       </p>
