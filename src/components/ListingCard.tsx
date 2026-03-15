@@ -40,6 +40,11 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         {listing.boost && <div className="absolute top-2 left-2">{getBoostBadge()}</div>}
+        {listing.isSold && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <Badge className="bg-destructive text-destructive-foreground border-0 text-sm px-3 py-1">Vendu</Badge>
+          </div>
+        )}
         <div className="absolute top-2 right-2">
           <Badge variant="secondary" className="bg-card/90 backdrop-blur-sm">{listing.category.icon} {listing.category.name}</Badge>
         </div>
