@@ -87,7 +87,22 @@ export default function Messages() {
       .from('conversations')
       .select('*')
       .order('updated_at', { ascending: false });
-    if (!error && data) setConversations(data);
+    if (!error && data && user) {
+      // Fetch other participants' names
+      const otherUserIds = [...new Set(data.map(c => c.user_id === user.id ? c.recipient_id : c.user_id).filter(Boolean))] as string[];
+      const profilesMap: Record<string, string> = {};
+      if (otherUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles_public')
+          .select('user_id, full_name')
+          .in('user_id', otherUserIds);
+        profiles?.forEach(p => { if (p.user_id && p.full_name) profilesMap[p.user_id] = p.full_name; });
+      }
+      setConversations(data.map(c => {
+        const otherId = c.user_id === user.id ? c.recipient_id : c.user_id;
+        return { ...c, otherUserName: otherId ? profilesMap[otherId] || 'Utilisateur' : 'Utilisateur' };
+      }));
+    }
     setLoading(false);
   };
 
