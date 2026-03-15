@@ -247,7 +247,12 @@ export default function ListingDetail() {
           {/* Sidebar */}
           <div className="space-y-4">
             <div className="bg-card rounded-xl p-6 border border-border space-y-4">
-              <Badge variant="secondary">{listing.category.icon} {listing.category.name}</Badge>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">{listing.category.icon} {listing.category.name}</Badge>
+                {listing.isSold && (
+                  <Badge className="bg-destructive text-destructive-foreground border-0 gap-1">Vendu</Badge>
+                )}
+              </div>
               <h1 className="text-2xl font-bold text-foreground">{listing.title}</h1>
               <p className="text-3xl font-bold text-primary">{formatPrice(listing.price)}</p>
 
