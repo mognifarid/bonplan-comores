@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, MessageSquare, Send, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Loader2, MessageSquare, Send, ArrowLeft, Plus, Trash2, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -26,6 +27,7 @@ interface Conversation {
   last_message?: string;
   unread_count?: number;
   otherUserName?: string;
+  otherUserAvatar?: string | null;
 }
 
 interface Message {
@@ -88,19 +90,25 @@ export default function Messages() {
       .select('*')
       .order('updated_at', { ascending: false });
     if (!error && data && user) {
-      // Fetch other participants' names
       const otherUserIds = [...new Set(data.map(c => c.user_id === user.id ? c.recipient_id : c.user_id).filter(Boolean))] as string[];
-      const profilesMap: Record<string, string> = {};
+      const profilesMap: Record<string, { name: string; avatar: string | null }> = {};
       if (otherUserIds.length > 0) {
         const { data: profiles } = await supabase
           .from('profiles_public')
-          .select('user_id, full_name')
+          .select('user_id, full_name, avatar_url')
           .in('user_id', otherUserIds);
-        profiles?.forEach(p => { if (p.user_id && p.full_name) profilesMap[p.user_id] = p.full_name; });
+        profiles?.forEach(p => {
+          if (p.user_id) profilesMap[p.user_id] = { name: p.full_name || 'Utilisateur', avatar: p.avatar_url };
+        });
       }
       setConversations(data.map(c => {
         const otherId = c.user_id === user.id ? c.recipient_id : c.user_id;
-        return { ...c, otherUserName: otherId ? profilesMap[otherId] || 'Utilisateur' : 'Utilisateur' };
+        const profile = otherId ? profilesMap[otherId] : null;
+        return {
+          ...c,
+          otherUserName: profile?.name || 'Utilisateur',
+          otherUserAvatar: profile?.avatar || null,
+        };
       }));
     }
     setLoading(false);
@@ -114,7 +122,6 @@ export default function Messages() {
       .order('created_at', { ascending: true });
     if (data) {
       setMessages(data);
-      // Mark unread messages from others as read
       const unreadIds = data.filter(m => !m.is_read && m.sender_id !== user?.id).map(m => m.id);
       if (unreadIds.length > 0) {
         await supabase.from('messages').update({ is_read: true }).in('id', unreadIds);
@@ -134,14 +141,12 @@ export default function Messages() {
       toast({ title: "Erreur", description: "Impossible d'envoyer le message.", variant: "destructive" });
     } else {
       setNewMessage('');
-      // Update conversation updated_at
       await supabase.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', selectedConversation);
     }
     setSending(false);
   };
 
   const handleDeleteConversation = async (convId: string) => {
-    // Delete messages first, then conversation
     await supabase.from('messages').delete().eq('conversation_id', convId);
     const { error } = await supabase.from('conversations').delete().eq('id', convId);
     if (error) {
@@ -169,6 +174,11 @@ export default function Messages() {
   }
 
   const selectedConv = conversations.find(c => c.id === selectedConversation);
+
+  const getInitials = (name?: string) => {
+    if (!name || name === 'Utilisateur') return null;
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -202,20 +212,28 @@ export default function Messages() {
                   <div key={conv.id} className="relative group">
                     <button
                       onClick={() => setSelectedConversation(conv.id)}
-                      className={`w-full text-left p-4 border-b border-border hover:bg-muted/50 transition-colors ${
+                      className={`w-full text-left p-4 border-b border-border hover:bg-muted/50 transition-colors flex items-start gap-3 ${
                         selectedConversation === conv.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
                       }`}
                     >
-                      <p className="font-medium text-sm text-foreground truncate pr-8">{conv.otherUserName || 'Utilisateur'}</p>
-                      <p className="text-xs text-muted-foreground truncate">{conv.subject}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
-                      </p>
-                      <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${
-                        conv.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {conv.status === 'open' ? 'Ouvert' : 'Fermé'}
-                      </span>
+                      <Avatar className="h-10 w-10 flex-shrink-0 mt-0.5">
+                        <AvatarImage src={conv.otherUserAvatar || undefined} alt={conv.otherUserName} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          {getInitials(conv.otherUserName) || <User className="h-4 w-4" />}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm text-foreground truncate pr-8">{conv.otherUserName || 'Utilisateur'}</p>
+                        <p className="text-xs text-muted-foreground truncate">{conv.subject}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(new Date(conv.updated_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                        </p>
+                        <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${
+                          conv.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {conv.status === 'open' ? 'Ouvert' : 'Fermé'}
+                        </span>
+                      </div>
                     </button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -252,31 +270,48 @@ export default function Messages() {
                   <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSelectedConversation(null)}>
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={selectedConv.otherUserAvatar || undefined} alt={selectedConv.otherUserName} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      {getInitials(selectedConv.otherUserName) || <User className="h-3.5 w-3.5" />}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <p className="font-medium text-sm text-foreground">{selectedConv.otherUserName || 'Utilisateur'}</p>
                     <p className="text-xs text-muted-foreground truncate">{selectedConv.subject}</p>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                  {messages.map(msg => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
-                        msg.sender_id === user?.id
-                          ? 'bg-primary text-primary-foreground rounded-br-md'
-                          : 'bg-muted text-foreground rounded-bl-md'
-                      }`}>
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                        <p className={`text-[10px] mt-1 ${
-                          msg.sender_id === user?.id ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                  {messages.map(msg => {
+                    const isMe = msg.sender_id === user?.id;
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}
+                      >
+                        {!isMe && (
+                          <Avatar className="h-7 w-7 flex-shrink-0 mb-1">
+                            <AvatarImage src={selectedConv.otherUserAvatar || undefined} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                              {getInitials(selectedConv.otherUserName) || <User className="h-3 w-3" />}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
+                          isMe
+                            ? 'bg-primary text-primary-foreground rounded-br-md'
+                            : 'bg-muted text-foreground rounded-bl-md'
                         }`}>
-                          {format(new Date(msg.created_at), 'HH:mm', { locale: fr })}
-                        </p>
+                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                          <p className={`text-[10px] mt-1 ${
+                            isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                          }`}>
+                            {format(new Date(msg.created_at), 'HH:mm', { locale: fr })}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <div ref={messagesEndRef} />
                 </div>
                 {selectedConv.status === 'open' && (
