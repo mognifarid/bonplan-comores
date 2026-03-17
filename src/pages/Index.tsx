@@ -49,12 +49,14 @@ export default function Index() {
             <IslandSelector selected={selectedIsland} onSelect={setSelectedIsland} />
           </section>
 
-          {/* Boosted Ads */}
-          <BoostedAdsSection
-            featuredListings={featuredListings}
-            urgentListings={urgentListings}
-            boostedListings={boostedListings}
-          />
+          {/* Boosted Ads - only show when 105+ listings */}
+          {allListings.length >= 105 && (
+            <BoostedAdsSection
+              featuredListings={featuredListings}
+              urgentListings={urgentListings}
+              boostedListings={boostedListings}
+            />
+          )}
 
           {/* Recent Listings */}
           <section className="animate-fade-in">
